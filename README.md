@@ -1,4 +1,4 @@
-# staffnet-django
+# staffnet
 
 ## Why do a refactor?
 
