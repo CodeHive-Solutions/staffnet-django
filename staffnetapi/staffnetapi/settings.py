@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
-import sys
+import ldap
+from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
@@ -33,10 +34,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["SECRET_KEY"]
 
+
+def str_to_bool(value: str) -> bool:
+    """Convert a string to a boolean."""
+    return value.lower() in ("true", "t", "1")
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ["DEBUG"]
+DEBUG = str_to_bool(os.environ["DEBUG"])
 
 ALLOWED_HOSTS = [host.strip() for host in os.environ["ALLOWED_HOSTS"].split(",")]
+
+# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -48,6 +57,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_auth_ldap",
+    "administration",
+    "employees",
 ]
 
 MIDDLEWARE = [
@@ -60,18 +72,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-}
-
-if not "test" in sys.argv:
-    SECURE_SSL_REDIRECT = True
+# if not "test" in sys.argv:
+# SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
@@ -81,6 +83,10 @@ SECURE_HSTS_PRELOAD = True
 
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    host.strip() for host in os.environ["CSRF_TRUSTED_ORIGINS"].split(",")
+]
+
 
 if not DEBUG:
     cors_allowed_origins = os.environ["CORS_ALLOWED_ORIGINS"]
@@ -109,7 +115,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "staffnetapi.wsgi.application"
+# WSGI_APPLICATION = "staffnetapi.wsgi.application"
 
 
 # Database
@@ -122,7 +128,7 @@ DATABASES = {
         "PORT": os.environ["DB_PORT"],
         "USER": os.environ["DB_USER"],
         "PASSWORD": os.environ["DB_PASSWORD"],
-        "NAME": "staffnet",
+        "NAME": "staffnet2",
     }
 }
 
@@ -145,6 +151,45 @@ DATABASES = {
 #     },
 # ]
 
+AUTHENTICATION_BACKENDS = [
+    "django_auth_ldap.backend.LDAPBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
+# LDAP configuration
+AUTH_LDAP_SERVER_URI = "ldap://CYC-SERVICES.COM.CO:389"
+AUTH_LDAP_BIND_DN = "CN=StaffNet,OU=TECNOLOGÍA,OU=BOGOTA,DC=CYC-SERVICES,DC=COM,DC=CO"
+AUTH_LDAP_BIND_PASSWORD = os.getenv("AdminLDAPPassword")
+
+AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
+    LDAPSearch(
+        "OU=BOGOTA,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
+        ldap.SCOPE_SUBTREE,  # Search scope
+        "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
+    ),
+    LDAPSearch(
+        "OU=MEDELLIN,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
+        ldap.SCOPE_SUBTREE,  # Search scope
+        "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
+    ),
+    LDAPSearch(
+        "OU=BUCARAMANGA,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
+        ldap.SCOPE_SUBTREE,  # Search scope
+        "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
+    ),
+    LDAPSearch(
+        "OU=VILLAVICENCIO,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
+        ldap.SCOPE_SUBTREE,  # Search scope
+        "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
+    ),
+)
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+}
+
+AUTH_LDAP_ALWAYS_UPDATE_USER = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
