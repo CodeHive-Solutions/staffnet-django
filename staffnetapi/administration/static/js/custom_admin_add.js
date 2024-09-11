@@ -39,36 +39,38 @@ window.addEventListener("load", function () {
     });
 });
 
-// Format the value of the inputs with the name 'salary' and 'transportation_allowance' to COP currency
-function formatToCOP(value) {
-    const formattedValue = new Intl.NumberFormat("es-CO", {
-        style: "currency",
-        currency: "COP",
-        minimumFractionDigits: 0,
-    }).format(value);
-
-    console.log(formattedValue);
-    return formattedValue.replace(/,00$/, ""); // Optionally remove cents
-}
-
-// Function to handle formatting input value
-function formatInput(input) {
-    // Remove any non-digit characters
-    const value = input.value.replace(/\D/g, "");
-    if (value) {
-        input.value = formatToCOP(value);
-    }
-}
-
 // Get input elements
-const salaryInput = document.querySelector('input[name="salary"]');
-const transportationAllowanceInput = document.querySelector('input[name="transportation_allowance"]');
 
-// Add event listeners
-salaryInput.addEventListener("input", () => formatInput(salaryInput));
-transportationAllowanceInput.addEventListener("input", () => formatInput(transportationAllowanceInput));
+window.addEventListener("load", () => {
+    // Select the input elements
+    const salaryInput = document.querySelector('input[name="salary"]');
+    const transportationAllowanceInput = document.querySelector('input[name="transportation_allowance"]');
 
-// Add event listeners
-salaryInput.addEventListener("input", () => formatInput(salaryInput));
-transportationAllowanceInput.addEventListener("input", () => formatInput(transportationAllowanceInput));
-console.log("Script executed successfully");
+    // Change input types to text using JavaScript
+    salaryInput.type = "text";
+    transportationAllowanceInput.type = "text";
+
+    // Function to format a number as COP currency
+    function formatToCOP(value) {
+        const formattedValue = new Intl.NumberFormat("es-CO", {
+            style: "currency",
+            currency: "COP",
+            minimumFractionDigits: 0,
+        }).format(value);
+
+        return formattedValue.replace(/,00$/, ""); // Optionally remove cents
+    }
+
+    // Function to handle formatting input value
+    function formatInput(input) {
+        // Remove any non-digit characters
+        const value = input.value.replace(/\D/g, "");
+        if (value) {
+            input.value = formatToCOP(value);
+        }
+    }
+
+    // Add event listeners for formatting
+    salaryInput.addEventListener("input", () => formatInput(salaryInput));
+    transportationAllowanceInput.addEventListener("input", () => formatInput(transportationAllowanceInput));
+});
