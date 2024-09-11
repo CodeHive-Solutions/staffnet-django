@@ -1,14 +1,32 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Employee
 
 
 # Register your models here.
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "email", "job_title")
+    list_display = (
+        "identification",
+        "first_name",
+        "last_name",
+        "campaign",
+        "job_title",
+    )
+    # show all fields
+    # list_display = [field.name for field in Employee._meta.fields]
+    readonly_fields = ("photo_thumbnail",)
+
+    def photo_thumbnail(self, obj):
+        if obj.photo:
+            return format_html('<img src="{}" style="height: 300px;" />', obj.photo.url)
+        return "No hay foto"
+
+    photo_thumbnail.short_description = "Previsualización de la foto"
+
     search_fields = ("first_name", "last_name", "email")
     list_filter = ("job_title",)
-    list_per_page = 10
+    list_per_page = 20
     list_max_show_all = 100
     ordering = ("first_name", "last_name")
     fieldsets = (
@@ -16,6 +34,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             "Información Personal",
             {
                 "fields": (
+                    ("photo_thumbnail", "photo"),
                     ("document_type", "identification"),
                     ("expedition_place", "expedition_date"),
                     ("first_name", "last_name"),
@@ -24,7 +43,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                     ("civil_status", "sons"),
                     ("responsible_persons", "stratum"),
                     ("fixed_phone", "cell_phone"),
-                    ("emergency_contact", "emergency_phone"),
+                    ("emergency_contact", "emergency_relationship", "emergency_phone"),
                     "rh",
                 )
             },
@@ -55,7 +74,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                     "contract_type",
                     "entry_date",
                     ("salary", "transportation_allowance"),
-                    ("remote_work", "remote_work_application_date"),
+                    ("remote_work_application_date", "remote_work"),
                     ("shirt_size", "pant_size", "shoe_size"),
                 )
             },

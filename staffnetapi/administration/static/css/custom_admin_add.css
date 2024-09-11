@@ -1,0 +1,79 @@
+.vDateField {
+    width: 400px;
+}
+
+select {
+    width: 414px;
+}
+
+input[type="number"] {
+    width: 400px;
+}
+
+input[type="text"] {
+    width: 400px;
+}
+
+input[type="email"] {
+    width: 400px;
+}
+
+.fieldBox {
+    display: block !important;
+}
+
+.date {
+    padding: 0 !important;
+}
+
+.related-widget-wrapper {
+    display: table-caption;
+}
+
+label {
+    width: unset !important;
+}
+
+.field-rh .flex-container {
+    display: block !important;
+}
+
+.checkbox-row {
+    display: flex !important;
+    align-items: center;
+    padding: 0;
+}
+
+.datetimeshortcuts {
+    display: none;
+}
+
+/* adjust this */
+.form-row.field-remote_work.field-remote_work_application_date .flex-container.form-multiline > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.form-row.field-education_level.field-title.field-ongoing_studies .flex-container.form-multiline > div:nth-child(3) {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+/* .flex-container.form-multiline > div:nth-of-type(3) {
+    display: flex;
+    align-items: center;
+    padding: 0;
+} */
+
+/* remove arrows from number input */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}

@@ -25,6 +25,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# Ignore the collectstatic directory
+staffnetapi/static/
+# Ignore media files
+staffnetapi/media/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

@@ -1,20 +1,56 @@
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
+from django.core.validators import (
+    MinValueValidator,
+    MaxValueValidator,
+    MinLengthValidator,
+)
 
 
-# Define choices using TextChoices for better structure
+class UpperCharField(models.CharField):
+    def pre_save(self, model_instance, add):
+        value = getattr(model_instance, self.attname)
+        if value:
+            value = value.upper()
+            setattr(model_instance, self.attname, value)
+        return value
+
+
+class UpperEmailField(models.EmailField):
+    def pre_save(self, model_instance, add):
+        value = getattr(model_instance, self.attname)
+        if value:
+            value = value.upper()
+            setattr(model_instance, self.attname, value)
+        return value
+
+
 class CivilStatus(models.TextChoices):
-    SINGLE = "S", "Soltero(a)"
-    MARRIED = "C", "Casado(a)"
-    DIVORCED = "D", "Divorciado(a)"
-    COMMON_LAW = "U", "Unión Libre"
-    SEPARATED = "P", "Separado(a)"
-    WIDOWED = "V", "Viudo(a)"
+    SINGLE = "SOLTERO(A)", "Soltero(a)"
+    COMMON_LAW = "UNIÓN LIBRE", "Unión Libre"
+    MARRIED = "CASADO(A)", "Casado(a)"
+    DIVORCED = "DIVORCIADO(A)", "Divorciado(a)"
+    SEPARATED = "SEPARADO(A)", "Separado(a)"
+    WIDOWED = "VIUDO(A)", "Viudo(a)"
+
+
+class Relationship(models.TextChoices):
+    FATHER = "PADRE", "Padre"
+    MOTHER = "MADRE", "Madre"
+    OTHER = "OTRO", "Otro"
+    GRANDFATHER = "ABUELO(A)", "Abuelo(a)"
+    FRIEND = "AMIGO(A)", "Amigo(a)"
+    BROTHER = "HERMANO(A)", "Hermano(a)"
+    SPOUSE = "ESPOSO(A)", "Esposo(a)"
+    SON = "HIJO(A)", "Hijo(a)"
+    UNCLE = "TÍO(A)", "Tío(a)"
+    COUSIN = "PRIMO(A)", "Primo(a)"
+    RELATIVE = "FAMILIAR", "Familiar"
 
 
 class BusinessArea(models.TextChoices):
-    OPERATIONS = "Operativos", "Operativos"
-    ADMINISTRATIVE = "Administrativos", "Administrativos"
+    OPERATIONS = "OPERATIVOS", "Operativos"
+    ADMINISTRATIVE = "ADMINISTRATIVOS", "Administrativos"
 
 
 class Rh(models.TextChoices):
@@ -29,22 +65,22 @@ class Rh(models.TextChoices):
 
 
 class EducationLevel(models.TextChoices):
-    PRIMARY = "Primaria", "Primaria"
-    SECONDARY = "Bachiller", "Bachiller"
-    TECHNICAL = "Técnico", "Técnico"
-    TECHNOLOGICAL = "Tecnológico", "Tecnológico"
-    AUXILIARY = "Auxiliar", "Auxiliar"
-    UNIVERSITY = "Universitario", "Universitario"
-    PROFESSIONAL = "Profesional", "Profesional"
-    SPECIALIZATION = "Especialización", "Especialización"
+    PRIMARY = "PRIMARIA", "Primaria"
+    SECONDARY = "BACHILLER", "Bachiller"
+    TECHNICAL = "TÉCNICO", "Técnico"
+    TECHNOLOGICAL = "TECNOLÓGICO", "Tecnológico"
+    AUXILIARY = "AUXILIAR", "Auxiliar"
+    UNIVERSITY = "UNIVERSITARIO", "Universitario"
+    PROFESSIONAL = "PROFESIONAL", "Profesional"
+    SPECIALIZATION = "ESPECIALIZACIÓN", "Especialización"
 
 
 class ContractType(models.TextChoices):
-    INDEFINITE_TERM = "Termino Indefinido", "Termino Indefinido"
-    FIXED_TERM = "Termino Fijo", "Termino Fijo"
-    WORK = "Obra o Labor", "Obra o Labor"
-    SERVICE = "Prestación de Servicios", "Prestación de Servicios"
-    LEARNING = "Aprendizaje", "Aprendizaje"
+    INDEFINITE_TERM = "TERMINO INDEFINIDO", "Termino Indefinido"
+    FIXED_TERM = "TERMINO FIJO", "Termino Fijo"
+    WORK = "OBRA O LABOR", "Obra o Labor"
+    SERVICE = "PRESTACIÓN DE SERVICIOS", "Prestación de Servicios"
+    LEARNING = "APRENDIZAJE", "Aprendizaje"
 
 
 class DocumentType(models.TextChoices):
@@ -56,78 +92,110 @@ class DocumentType(models.TextChoices):
 
 
 class Employee(models.Model):
-    # Use regex validator for identification
-    identification = models.CharField(
-        max_length=10, unique=True, verbose_name="Identificación"
+    photo = models.ImageField(
+        upload_to="employees/photos",
+        null=True,
+        blank=True,
+        verbose_name="Foto",
     )
-    last_name = models.CharField(max_length=100, verbose_name="Apellidos")
-    first_name = models.CharField(max_length=100, verbose_name="Nombres")
-    document_type = models.CharField(
+    identification = models.PositiveIntegerField(
+        unique=True,
+        verbose_name="Identificación",
+        validators=[MinValueValidator(10000)],
+    )
+    last_name = UpperCharField(max_length=100, verbose_name="Apellidos", null=True)
+    first_name = UpperCharField(max_length=100, verbose_name="Nombres")
+    document_type = UpperCharField(
         max_length=2,
         choices=DocumentType.choices,
         verbose_name="Tipo de Documento",
         default=DocumentType.CC,
     )
     birth_date = models.DateField(verbose_name="Fecha de Nacimiento")
-    expedition_place = models.CharField(
+    expedition_place = UpperCharField(
         max_length=100, verbose_name="Lugar de Expedición"
     )
     expedition_date = models.DateField(verbose_name="Fecha de Expedición")
-    gender = models.CharField(max_length=1, verbose_name="Género")
-    rh = models.CharField(max_length=3, choices=Rh.choices, verbose_name="RH")
-    civil_status = models.CharField(
-        max_length=1, choices=CivilStatus.choices, verbose_name="Estado Civil"
+    gender = UpperCharField(
+        max_length=1,
+        choices=(("M", "Masculino"), ("F", "Femenino")),
+        verbose_name="Género",
+    )
+    rh = UpperCharField(max_length=3, choices=Rh.choices, verbose_name="RH")
+    civil_status = UpperCharField(
+        max_length=25, choices=CivilStatus.choices, verbose_name="Estado Civil"
     )
 
-    # Change to PositiveIntegerField for sons
     sons = models.PositiveIntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(30)],
         verbose_name="Número de Hijos",
     )
+
     responsible_persons = models.PositiveIntegerField(
         default=0,
         validators=[MinValueValidator(0), MaxValueValidator(30)],
         verbose_name="Personas a Cargo",
     )
-    stratum = models.PositiveIntegerField(
-        default=2,
-        validators=[MinValueValidator(1), MaxValueValidator(6)],
+
+    stratum = UpperCharField(
+        max_length=1,
+        choices=(
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+            ("4", "4"),
+            ("5", "5"),
+            ("6", "6"),
+        ),
         verbose_name="Estrato",
     )
-    fixed_phone = models.CharField(
-        max_length=15, verbose_name="Teléfono Fijo", null=True, blank=True
-    )
-    cell_phone = models.CharField(max_length=15, verbose_name="Celular")
 
-    email = models.EmailField(unique=True, verbose_name="Correo Electrónico")
-    corporate_email = models.EmailField(
-        unique=True, verbose_name="Correo Electrónico Corporativo"
+    fixed_phone = models.CharField(
+        verbose_name="Teléfono Fijo",
+        null=True,
+        max_length=15,
+        blank=True,
+        validators=[MinLengthValidator(7)],
     )
-    address = models.CharField(max_length=255, verbose_name="Dirección")
-    neighborhood = models.CharField(max_length=100, verbose_name="Barrio")
+    cell_phone = UpperCharField(
+        verbose_name="Celular",
+        max_length=15,
+        validators=[MinLengthValidator(10)],
+    )
+    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico")
+    corporate_email = UpperEmailField(
+        unique=True,
+        verbose_name="Correo Electrónico Corporativo",
+        null=True,
+        blank=True,
+    )
+    address = UpperCharField(max_length=255, verbose_name="Dirección")
+    neighborhood = UpperCharField(max_length=100, verbose_name="Barrio")
     locality = models.ForeignKey(
         "administration.Locality",
         on_delete=models.CASCADE,
         related_name="employees",
         verbose_name="Localidad",
     )
-    emergency_contact = models.CharField(
-        max_length=100, verbose_name="Contacto de Emergencia"
+    emergency_contact = UpperCharField(
+        max_length=100, verbose_name="Nombre Contacto de Emergencia"
     )
-    emergency_relationship = models.CharField(
-        max_length=100, verbose_name="Parentesco Contacto de Emergencia"
+    emergency_relationship = UpperCharField(
+        max_length=100,
+        choices=Relationship.choices,
+        verbose_name="Parentesco Contacto de Emergencia",
     )
-    emergency_phone = models.CharField(
+    emergency_phone = UpperCharField(
         max_length=15, verbose_name="Teléfono de Emergencia"
     )
     # Education
-    education_level = models.CharField(
+    education_level = UpperCharField(
         max_length=100,
         choices=EducationLevel.choices,
         verbose_name="Nivel de Educación",
     )
-    title = models.CharField(max_length=150, verbose_name="Título")
+    title = UpperCharField(max_length=150, verbose_name="Título")
     ongoing_studies = models.BooleanField(
         default=False, verbose_name="Estudios en Curso"
     )
@@ -157,7 +225,7 @@ class Employee(models.Model):
         related_name="employees",
         verbose_name="Cesantías",
     )
-    payroll_account = models.CharField(max_length=50, verbose_name="Cuenta de Nómina")
+    payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
     bank = models.ForeignKey(
         "administration.Bank",
         on_delete=models.CASCADE,
@@ -176,7 +244,7 @@ class Employee(models.Model):
         related_name="employees",
         verbose_name="Cargo",
     )
-    appointment_date = models.DateField(verbose_name="Fecha de Nombramiento")
+    appointment_date = models.DateField(verbose_name="Fecha de Nombramiento", null=True)
     management = models.ForeignKey(
         "administration.Management",
         on_delete=models.CASCADE,
@@ -189,10 +257,10 @@ class Employee(models.Model):
         related_name="employees",
         verbose_name="Campaña",
     )
-    business_area = models.CharField(
+    business_area = UpperCharField(
         max_length=100, choices=BusinessArea.choices, verbose_name="Área de Negocio"
     )
-    contract_type = models.CharField(
+    contract_type = UpperCharField(
         max_length=100, choices=ContractType.choices, verbose_name="Tipo de Contrato"
     )
     entry_date = models.DateField(verbose_name="Fecha de Ingreso")
@@ -203,21 +271,33 @@ class Employee(models.Model):
         max_digits=65, decimal_places=2, verbose_name="Auxilio de Transporte"
     )
     remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
+    # If the employee has remote work, the date when it was applied
     remote_work_application_date = models.DateField(
-        verbose_name="Fecha de Aplicación de Trabajo Remoto"
+        verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
+    )
+    windows_user = UpperCharField(
+        max_length=50,
+        verbose_name="Usuario de Windows",
+        null=True,
+        blank=True,
+        unique=True,
     )
     shirt_size = models.PositiveIntegerField(
         validators=[MinValueValidator(6), MaxValueValidator(50)],
         verbose_name="Talla de Camisa",
+        null=True,
     )
     pant_size = models.PositiveIntegerField(
         validators=[MinValueValidator(6), MaxValueValidator(50)],
         verbose_name="Talla de Pantalón",
+        null=True,
     )
     shoe_size = models.PositiveIntegerField(
         validators=[MinValueValidator(20), MaxValueValidator(50)],
         verbose_name="Talla de Zapato",
+        null=True,
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -226,8 +306,26 @@ class Employee(models.Model):
         verbose_name_plural = "Empleados"
         indexes = [
             models.Index(fields=["identification"]),
-            models.Index(fields=["email"]),
+            models.Index(fields=["windows_user"]),
         ]
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.identification})"
+        return f"{self.first_name} {self.last_name} - {self.identification}"
+
+    def clean(self) -> None:
+        # If remote_work is True and no date is provided, raise an error
+        if self.remote_work and not self.remote_work_application_date:
+            raise ValidationError(
+                "La fecha de aplicación de teletrabajo es requerida.",
+            )
+
+        # If remote_work is False and date is set, raise an error or clear the date
+        if not self.remote_work and self.remote_work_application_date:
+            raise ValidationError(
+                "La fecha de aplicación de teletrabajo no es requerida.",
+            )
+        return super().clean()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

@@ -12,6 +12,10 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Department, self).save(*args, **kwargs)
+
 
 class JobTitle(models.Model):
     name = models.CharField(max_length=100)
@@ -22,6 +26,10 @@ class JobTitle(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(JobTitle, self).save(*args, **kwargs)
 
 
 class Locality(models.Model):
@@ -34,6 +42,10 @@ class Locality(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Locality, self).save(*args, **kwargs)
+
 
 class HealthProvider(models.Model):
     name = models.CharField(max_length=100)
@@ -44,6 +56,10 @@ class HealthProvider(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(HealthProvider, self).save(*args, **kwargs)
 
 
 class PensionFund(models.Model):
@@ -56,6 +72,10 @@ class PensionFund(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(PensionFund, self).save(*args, **kwargs)
+
 
 class CompensationFund(models.Model):
     name = models.CharField(max_length=100)
@@ -66,6 +86,10 @@ class CompensationFund(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(CompensationFund, self).save(*args, **kwargs)
 
 
 class SavingFund(models.Model):
@@ -78,6 +102,10 @@ class SavingFund(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(SavingFund, self).save(*args, **kwargs)
+
 
 class Headquarter(models.Model):
     name = models.CharField(max_length=100)
@@ -88,6 +116,10 @@ class Headquarter(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Headquarter, self).save(*args, **kwargs)
 
 
 class Management(models.Model):
@@ -100,6 +132,10 @@ class Management(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Management, self).save(*args, **kwargs)
+
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
@@ -111,6 +147,11 @@ class Campaign(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Campaign, self).save(*args, **kwargs)
+
+
 class Bank(models.Model):
     name = models.CharField(max_length=100)
 
@@ -120,3 +161,7 @@ class Bank(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.upper()
+        super(Bank, self).save(*args, **kwargs)

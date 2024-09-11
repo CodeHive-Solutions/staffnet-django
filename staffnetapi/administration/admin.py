@@ -7,7 +7,10 @@ from .models import (
     PensionFund,
     CompensationFund,
     SavingFund,
-    Headquarter
+    Headquarter,
+    Management,
+    Campaign,
+    Bank,
 )
 
 
@@ -26,3 +29,6 @@ admin.site.register(PensionFund)
 admin.site.register(CompensationFund)
 admin.site.register(SavingFund)
 admin.site.register(Headquarter)
+admin.site.register(Management)
+admin.site.register(Campaign)
+admin.site.register(Bank)

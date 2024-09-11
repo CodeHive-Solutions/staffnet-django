@@ -51,7 +51,6 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ["ALLOWED_HOSTS"].split(",")
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -60,6 +59,7 @@ INSTALLED_APPS = [
     "django_auth_ldap",
     "administration",
     "employees",
+    "django.contrib.admin",
 ]
 
 MIDDLEWARE = [
@@ -159,7 +159,7 @@ AUTHENTICATION_BACKENDS = [
 # LDAP configuration
 AUTH_LDAP_SERVER_URI = "ldap://CYC-SERVICES.COM.CO:389"
 AUTH_LDAP_BIND_DN = "CN=StaffNet,OU=TECNOLOGÍA,OU=BOGOTA,DC=CYC-SERVICES,DC=COM,DC=CO"
-AUTH_LDAP_BIND_PASSWORD = os.getenv("AdminLDAPPassword")
+AUTH_LDAP_BIND_PASSWORD = os.environ["AdminLDAPPassword"]
 
 AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
     LDAPSearch(
@@ -206,7 +206,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+# 11 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+SENDFILE_ROOT = MEDIA_ROOT
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
