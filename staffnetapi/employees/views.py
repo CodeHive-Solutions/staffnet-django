@@ -37,8 +37,28 @@ def get_employees_from_db(request):
                 or employee_data[key] == ""
             ):
                 employee_data[key] = None
+            if key == "parentesco" and employee_data[key] == "HERMANO (A)":
+                employee_data[key] = "HERMANO(A)"
+            elif key == "correo" and employee_data[key] == "#N/D":
+                employee_data[key] = None
+            elif key == "tel_contacto" and employee_data[key]:
+                if "-" in employee_data[key]:
+                    employee_data[key] = employee_data[key].split("-")[1].strip()
+                elif "//" in employee_data[key]:
+                    employee_data[key] = employee_data[key].split("//")[1].strip()
+                elif employee_data[key] == "320896082EVELIN M2":
+                    employee_data[key] = "320896082"
+            elif key == "celular" and employee_data[key]:
+                if "-" in employee_data[key]:
+                    employee_data[key] = employee_data[key].split("-")[1].strip()
+                elif "/" in employee_data[key]:
+                    employee_data[key] = employee_data[key].split("/")[1].strip()
+        if (
+            employee_data["correo"] == "PABLO.CASTANEDA@CYC-BPO.COM"
+            and employee_data["correo_corporativo"] == "YARIME.GIRALDO@CYC-BPO.COM"
+        ):
+            employee_data["correo"] = "PABLO.CASTANEDA+2@CYC-BPO.COM"
         print(employee_data)
-        print()
         Employee.objects.create(
             identification=int(employee_data["cedula"]),
             last_name=employee_data["apellidos"],
@@ -52,25 +72,24 @@ def get_employees_from_db(request):
                 or "Fri, 04 Aug 2023 00:00:00 GMT"
             ),
             gender="M" if employee_data["genero"] == "MASCULINO" else "F",
-            # ! Pendiente
             rh=employee_data["rh"] or "O+",
             civil_status=employee_data["estado_civil"],
-            sons=employee_data["hijos"],
-            responsible_persons=employee_data["personas_a_cargo"],
-            stratum=str(employee_data["estrato"]),
+            sons=employee_data["hijos"] or 0,
+            responsible_persons=employee_data["personas_a_cargo"] or 0,
+            stratum=employee_data["estrato"] or 2,
             fixed_phone=employee_data["tel_fijo"],
-            cell_phone=employee_data["celular"],
+            cell_phone=employee_data["celular"] or 0,
             email=employee_data["correo"],
             corporate_email=employee_data["correo_corporativo"],
             address=employee_data["direccion"] or "No especificada",
-            neighborhood=employee_data["barrio"],
+            neighborhood=employee_data["barrio"] or "No especificado",
             locality=Locality.objects.get_or_create(
                 name=employee_data["localidad"] or "No especificada"
             )[
                 0
             ],  # Fetching from database
             emergency_contact=employee_data["contacto_emergencia"] or "No especificado",
-            emergency_relationship=employee_data["parentesco"] or "No especificado",
+            emergency_relationship=employee_data["parentesco"] or "OTRO",
             emergency_phone=employee_data["tel_contacto"] or "No especificado",
             education_level=employee_data["nivel_escolaridad"],
             title=employee_data["profesion"],
@@ -98,8 +117,10 @@ def get_employees_from_db(request):
             )[
                 0
             ],  # Fetching from database
-            payroll_account=employee_data["cuenta_nomina"],
-            bank=Bank.objects.get_or_create(name=employee_data["banco"])[
+            payroll_account=employee_data["cuenta_nomina"] or 0,
+            bank=Bank.objects.get_or_create(
+                name=employee_data["banco"] or "BANCO CAJA SOCIAL"
+            )[
                 0
             ],  # Fetching from database
             headquarter=Headquarter.objects.get_or_create(
@@ -124,7 +145,7 @@ def get_employees_from_db(request):
                 0
             ],  # Fetching from database
             business_area=employee_data["area_negocio"],
-            contract_type=employee_data["tipo_contrato"],
+            contract_type=employee_data["tipo_contrato"] or "OBRA O LABOR",
             entry_date=parse_date(employee_data["fecha_ingreso"]),
             salary=employee_data["salario"],
             transportation_allowance=employee_data["subsidio_transporte"] or 0,
@@ -138,5 +159,4 @@ def get_employees_from_db(request):
             pant_size=employee_data.get("talla_pantalon"),
             shoe_size=employee_data.get("talla_zapatos"),
         )
-        print("Employee saved to the database.")
     return JsonResponse({"message": "Employees saved to the database."})

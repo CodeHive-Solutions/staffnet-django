@@ -75,7 +75,7 @@ class EmployeeModelTest(TestCase):
         self.employee_data = {
             "first_name": "John",
             "last_name": "Doe",
-            "identification": "123456789",
+            "identification": 123456789,
             "birth_date": "1990-01-01",
             "expedition_place": "Bogotá",
             "expedition_date": "2010-01-01",
@@ -126,6 +126,7 @@ class EmployeeModelTest(TestCase):
     def test_employee_save(self):
         """Tests that the employee info is saved in uppercase."""
         employee = Employee.objects.create(**self.employee_data)
+        print(type(employee.identification))
         self.assertEqual(employee.first_name, "JOHN")
         self.assertEqual(employee.last_name, "DOE")
         self.assertEqual(employee.identification, 123456789)
@@ -142,7 +143,6 @@ class EmployeeModelTest(TestCase):
         """Tests that the employee is created without remote work."""
         self.employee_data["remote_work"] = False
         self.employee_data["remote_work_application_date"] = "2021-01-01"
-        # employee = Employee.objects.create(**self.employee_data)
-        self.assertRaises(
-            ValidationError, Employee.objects.create, **self.employee_data
-        )
+        with self.assertRaises(ValidationError):
+            employee = Employee.objects.create(**self.employee_data)
+            employee.full_clean()

@@ -15,7 +15,11 @@ class EmployeeAdmin(admin.ModelAdmin):
     )
     # show all fields
     # list_display = [field.name for field in Employee._meta.fields]
-    readonly_fields = ("photo_thumbnail",)
+    readonly_fields = (
+        "photo_thumbnail",
+        "legacy_appointment_date",
+        "legacy_health_provider",
+    )
 
     def photo_thumbnail(self, obj):
         if obj.photo:
@@ -60,8 +64,8 @@ class EmployeeAdmin(admin.ModelAdmin):
             "Información Laboral",
             {
                 "fields": (
-                    ("affiliation_date", "health_provider", "pension_fund"),
-                    ("compensation_fund", "saving_fund"),
+                    ("affiliation_date", "health_provider", "legacy_health_provider"),
+                    ("pension_fund", "compensation_fund", "saving_fund"),
                     ("payroll_account", "bank"),
                     (
                         "headquarter",
@@ -69,6 +73,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                         "campaign",
                     ),
                     "appointment_date",
+                    "legacy_appointment_date",
                     "business_area",
                     "job_title",
                     "contract_type",
@@ -76,6 +81,18 @@ class EmployeeAdmin(admin.ModelAdmin):
                     ("salary", "transportation_allowance"),
                     ("remote_work_application_date", "remote_work"),
                     ("shirt_size", "pant_size", "shoe_size"),
+                )
+            },
+        ),
+        (
+            "Acciones Disciplinarias",
+            {
+                "fields": (
+                    (
+                        "memo_1",
+                        "memo_2",
+                        "memo_3",
+                    )
                 )
             },
         ),

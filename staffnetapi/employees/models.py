@@ -27,7 +27,7 @@ class UpperEmailField(models.EmailField):
 
 class CivilStatus(models.TextChoices):
     SINGLE = "SOLTERO(A)", "Soltero(a)"
-    COMMON_LAW = "UNIÓN LIBRE", "Unión Libre"
+    COMMON_LAW = "UNION LIBRE", "Unión Libre"
     MARRIED = "CASADO(A)", "Casado(a)"
     DIVORCED = "DIVORCIADO(A)", "Divorciado(a)"
     SEPARATED = "SEPARADO(A)", "Separado(a)"
@@ -43,7 +43,7 @@ class Relationship(models.TextChoices):
     BROTHER = "HERMANO(A)", "Hermano(a)"
     SPOUSE = "ESPOSO(A)", "Esposo(a)"
     SON = "HIJO(A)", "Hijo(a)"
-    UNCLE = "TÍO(A)", "Tío(a)"
+    UNCLE = "TIO(A)", "Tío(a)"
     COUSIN = "PRIMO(A)", "Primo(a)"
     RELATIVE = "FAMILIAR", "Familiar"
 
@@ -67,19 +67,18 @@ class Rh(models.TextChoices):
 class EducationLevel(models.TextChoices):
     PRIMARY = "PRIMARIA", "Primaria"
     SECONDARY = "BACHILLER", "Bachiller"
-    TECHNICAL = "TÉCNICO", "Técnico"
-    TECHNOLOGICAL = "TECNOLÓGICO", "Tecnológico"
+    TECHNICAL = "TECNICO", "Técnico"  # RH don't want special characters
+    TECHNOLOGICAL = "TECNOLOGICO", "Tecnológico"  # RH don't want special characters
     AUXILIARY = "AUXILIAR", "Auxiliar"
     UNIVERSITY = "UNIVERSITARIO", "Universitario"
     PROFESSIONAL = "PROFESIONAL", "Profesional"
-    SPECIALIZATION = "ESPECIALIZACIÓN", "Especialización"
+    SPECIALIZATION = "ESPECIALIZACION", "Especialización"
 
 
 class ContractType(models.TextChoices):
     INDEFINITE_TERM = "TERMINO INDEFINIDO", "Termino Indefinido"
-    FIXED_TERM = "TERMINO FIJO", "Termino Fijo"
     WORK = "OBRA O LABOR", "Obra o Labor"
-    SERVICE = "PRESTACIÓN DE SERVICIOS", "Prestación de Servicios"
+    SERVICE = "PRESTACION DE SERVICIOS", "Prestación de Servicios"
     LEARNING = "APRENDIZAJE", "Aprendizaje"
 
 
@@ -90,6 +89,7 @@ class DocumentType(models.TextChoices):
     PP = "PP", "Pasaporte"
     RC = "RC", "Registro Civil"
 
+# ! There is not all the fields
 
 class Employee(models.Model):
     photo = models.ImageField(
@@ -103,7 +103,9 @@ class Employee(models.Model):
         verbose_name="Identificación",
         validators=[MinValueValidator(10000)],
     )
-    last_name = UpperCharField(max_length=100, verbose_name="Apellidos", null=True)
+    last_name = UpperCharField(
+        max_length=100, verbose_name="Apellidos", null=True, blank=True
+    )
     first_name = UpperCharField(max_length=100, verbose_name="Nombres")
     document_type = UpperCharField(
         max_length=2,
@@ -138,7 +140,7 @@ class Employee(models.Model):
         verbose_name="Personas a Cargo",
     )
 
-    stratum = UpperCharField(
+    stratum = models.CharField(
         max_length=1,
         choices=(
             ("1", "1"),
@@ -154,8 +156,8 @@ class Employee(models.Model):
     fixed_phone = models.CharField(
         verbose_name="Teléfono Fijo",
         null=True,
-        max_length=15,
         blank=True,
+        max_length=15,
         validators=[MinLengthValidator(7)],
     )
     cell_phone = UpperCharField(
@@ -163,7 +165,7 @@ class Employee(models.Model):
         max_length=15,
         validators=[MinLengthValidator(10)],
     )
-    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico")
+    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico", null=True)
     corporate_email = UpperEmailField(
         unique=True,
         verbose_name="Correo Electrónico Corporativo",
@@ -195,7 +197,7 @@ class Employee(models.Model):
         choices=EducationLevel.choices,
         verbose_name="Nivel de Educación",
     )
-    title = UpperCharField(max_length=150, verbose_name="Título")
+    title = UpperCharField(max_length=150, verbose_name="Título", null=True, blank=True)
     ongoing_studies = models.BooleanField(
         default=False, verbose_name="Estudios en Curso"
     )
@@ -206,6 +208,9 @@ class Employee(models.Model):
         on_delete=models.CASCADE,
         related_name="employees",
         verbose_name="EPS",
+    )
+    legacy_health_provider = models.CharField(
+        max_length=100, verbose_name="CAMBIOS EPS (LEGADO)", null=True, blank=True
     )
     pension_fund = models.ForeignKey(
         "administration.PensionFund",
@@ -244,7 +249,12 @@ class Employee(models.Model):
         related_name="employees",
         verbose_name="Cargo",
     )
-    appointment_date = models.DateField(verbose_name="Fecha de Nombramiento", null=True)
+    appointment_date = models.DateField(
+        verbose_name="Fecha de Nombramiento", null=True, blank=True
+    )
+    legacy_appointment_date = models.DateField(
+        verbose_name="Fecha de Nombramiento (LEGADO)", null=True, blank=True
+    )
     management = models.ForeignKey(
         "administration.Management",
         on_delete=models.CASCADE,
@@ -286,17 +296,23 @@ class Employee(models.Model):
         validators=[MinValueValidator(6), MaxValueValidator(50)],
         verbose_name="Talla de Camisa",
         null=True,
+        blank=True,
     )
     pant_size = models.PositiveIntegerField(
         validators=[MinValueValidator(6), MaxValueValidator(50)],
         verbose_name="Talla de Pantalón",
         null=True,
+        blank=True,
     )
     shoe_size = models.PositiveIntegerField(
         validators=[MinValueValidator(20), MaxValueValidator(50)],
         verbose_name="Talla de Zapato",
         null=True,
+        blank=True,
     )
+    memo_1 = models.TextField(verbose_name="Memorando_1", null=True, blank=True)
+    memo_2 = models.TextField(verbose_name="Memorando_2", null=True, blank=True)
+    memo_3 = models.TextField(verbose_name="Memorando_3", null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -325,7 +341,3 @@ class Employee(models.Model):
                 "La fecha de aplicación de teletrabajo no es requerida.",
             )
         return super().clean()
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        return super().save(*args, **kwargs)
