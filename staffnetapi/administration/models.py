@@ -2,19 +2,19 @@ from django.db import models
 
 
 # Create your models here.
-class Department(models.Model):
-    name = models.CharField(max_length=100)
+# class Department(models.Model):
+#     name = models.CharField(max_length=100)
 
-    class Meta:
-        verbose_name = "Departamento"
-        verbose_name_plural = "Departamentos"
+#     class Meta:
+#         verbose_name = "Departamento"
+#         verbose_name_plural = "Departamentos"
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    def save(self, *args, **kwargs):
-        self.name = self.name.upper()
-        super(Department, self).save(*args, **kwargs)
+#     def save(self, *args, **kwargs):
+#         self.name = self.name.upper()
+#         super(Department, self).save(*args, **kwargs)
 
 
 class JobTitle(models.Model):

@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import (
-    Department,
     JobTitle,
     Locality,
     HealthProvider,
@@ -14,9 +13,9 @@ from .models import (
 )
 
 
-@admin.register(Department)
-class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ("name",)
+# @admin.register(Department)
+# class DepartmentAdmin(admin.ModelAdmin):
+#     list_display = ("name",)
     # search_fields = ("name", "code")
     # list_filter = ("created_at", "updated_at")
 

@@ -34,6 +34,16 @@ class CivilStatus(models.TextChoices):
     WIDOWED = "VIUDO(A)", "Viudo(a)"
 
 
+class ShirtSize(models.TextChoices):
+    XS = "XS", "XS"
+    S = "S", "S"
+    M = "M", "M"
+    L = "L", "L"
+    XL = "XL", "XL"
+    XXL = "XXL", "XXL"
+    XXXL = "XXXL", "XXXL"
+
+
 class Relationship(models.TextChoices):
     FATHER = "PADRE", "Padre"
     MOTHER = "MADRE", "Madre"
@@ -89,7 +99,9 @@ class DocumentType(models.TextChoices):
     PP = "PP", "Pasaporte"
     RC = "RC", "Registro Civil"
 
+
 # ! There is not all the fields
+
 
 class Employee(models.Model):
     photo = models.ImageField(
@@ -176,7 +188,7 @@ class Employee(models.Model):
     neighborhood = UpperCharField(max_length=100, verbose_name="Barrio")
     locality = models.ForeignKey(
         "administration.Locality",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Localidad",
     )
@@ -205,7 +217,7 @@ class Employee(models.Model):
     affiliation_date = models.DateField(verbose_name="Fecha de Afiliación")
     health_provider = models.ForeignKey(
         "administration.HealthProvider",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="EPS",
     )
@@ -214,56 +226,59 @@ class Employee(models.Model):
     )
     pension_fund = models.ForeignKey(
         "administration.PensionFund",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Fondo de Pensiones",
     )
     compensation_fund = models.ForeignKey(
         "administration.CompensationFund",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Caja de Compensación",
     )
     saving_fund = models.ForeignKey(
         "administration.SavingFund",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Cesantías",
     )
     payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
     bank = models.ForeignKey(
         "administration.Bank",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Banco",
     )
     headquarter = models.ForeignKey(
         "administration.Headquarter",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Sede",
     )
     job_title = models.ForeignKey(
         "administration.JobTitle",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Cargo",
     )
     appointment_date = models.DateField(
         verbose_name="Fecha de Nombramiento", null=True, blank=True
     )
-    legacy_appointment_date = models.DateField(
-        verbose_name="Fecha de Nombramiento (LEGADO)", null=True, blank=True
+    legacy_appointment_date = models.CharField(
+        verbose_name="Fecha de Nombramiento (LEGADO)",
+        max_length=250,
+        null=True,
+        blank=True,
     )
     management = models.ForeignKey(
         "administration.Management",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Gerencia",
     )
     campaign = models.ForeignKey(
         "administration.Campaign",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Campaña",
     )
@@ -292,8 +307,9 @@ class Employee(models.Model):
         blank=True,
         unique=True,
     )
-    shirt_size = models.PositiveIntegerField(
-        validators=[MinValueValidator(6), MaxValueValidator(50)],
+    shirt_size = models.CharField(
+        max_length=4,
+        choices=ShirtSize.choices,
         verbose_name="Talla de Camisa",
         null=True,
         blank=True,
@@ -305,7 +321,7 @@ class Employee(models.Model):
         blank=True,
     )
     shoe_size = models.PositiveIntegerField(
-        validators=[MinValueValidator(20), MaxValueValidator(50)],
+        validators=[MinValueValidator(25), MaxValueValidator(50)],
         verbose_name="Talla de Zapato",
         null=True,
         blank=True,
@@ -314,8 +330,8 @@ class Employee(models.Model):
     memo_2 = models.TextField(verbose_name="Memorando_2", null=True, blank=True)
     memo_3 = models.TextField(verbose_name="Memorando_3", null=True, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Empleado"

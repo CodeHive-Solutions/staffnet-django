@@ -126,7 +126,6 @@ class EmployeeModelTest(TestCase):
     def test_employee_save(self):
         """Tests that the employee info is saved in uppercase."""
         employee = Employee.objects.create(**self.employee_data)
-        print(type(employee.identification))
         self.assertEqual(employee.first_name, "JOHN")
         self.assertEqual(employee.last_name, "DOE")
         self.assertEqual(employee.identification, 123456789)
@@ -137,7 +136,6 @@ class EmployeeModelTest(TestCase):
         """Tests that all the employee fields are created."""
         response = self.client.get(reverse("get_employees_from_db"))
         self.assertEqual(response.status_code, 200)
-        print(Employee.objects.all().count())
 
     def test_create_no_remote_work(self):
         """Tests that the employee is created without remote work."""

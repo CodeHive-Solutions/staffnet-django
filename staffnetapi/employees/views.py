@@ -15,6 +15,19 @@ def parse_date(date_str):
 
 def get_employees_from_db(request):
     """Gets the employees from the external API."""
+    # First delete all records from the models
+    Employee.objects.all().delete()
+    Bank.objects.all().delete()
+    Campaign.objects.all().delete()
+    CompensationFund.objects.all().delete()
+    HealthProvider.objects.all().delete()
+    Headquarter.objects.all().delete()
+    JobTitle.objects.all().delete()
+    Locality.objects.all().delete()
+    Management.objects.all().delete()
+    PensionFund.objects.all().delete()
+    SavingFund.objects.all().delete()
+    # Set the cookie token
     cookie_token = "7ca6b0de-2d43-4ab9-967b-01ffdabbb4d8"
     # set the cookie
     request.COOKIES["StaffNet"] = cookie_token
@@ -31,6 +44,11 @@ def get_employees_from_db(request):
         # Set some columns in None if they are empty
         for key in employee_data:
             key = key.lower()
+            employee_data[key] = (
+                employee_data[key].strip()
+                if employee_data[key] and type(employee_data[key]) == str
+                else employee_data[key]
+            )
             if (
                 not employee_data[key]
                 or employee_data[key] == "null"
@@ -58,7 +76,65 @@ def get_employees_from_db(request):
             and employee_data["correo_corporativo"] == "YARIME.GIRALDO@CYC-BPO.COM"
         ):
             employee_data["correo"] = "PABLO.CASTANEDA+2@CYC-BPO.COM"
-        print(employee_data)
+        elif (
+            employee_data["correo"] == "YINETHROMERO0705@GMAIL.COM"
+            and employee_data["nombres"] == "LAURA VALENTINA"
+        ):
+            employee_data["correo"] = "YINETHROMERO0705+LAURA@GMAIL.COM"
+        elif (
+            employee_data["correo"] == "CARITO8827@HOTMAIL.COM"
+            and employee_data["apellidos"] == "MORALES VALDES"
+        ):
+            employee_data["correo"] = "CARITO8827+ERIKA@HOTMAIL.COM"
+        elif (
+            employee_data["correo"] == "LIYI0311@HOTMAIL.COM"
+            and employee_data["nombres"] == "ZULEY NATALIA"
+        ):
+            employee_data["correo"] = "LIYI0311+ZULEY@HOTMAIL.COM"
+        if (
+            employee_data["usuario_windows"]
+            and employee_data["usuario_windows"].lower() == "no"
+        ):
+            employee_data["usuario_windows"] = None
+        elif (
+            employee_data["usuario_windows"]
+            and employee_data["usuario_windows"].lower() == "daniel.ramirez"
+            and employee_data["cedula"] == 1012328078
+        ):
+            employee_data["usuario_windows"] = None
+        if (
+            employee_data["memorando_1"]
+            and employee_data["memorando_1"].lower() == "#N/D"
+        ):
+            employee_data["memorando_1"] = None
+        if (
+            employee_data["memorando_2"]
+            and employee_data["memorando_2"].lower() == "#N/D"
+        ):
+            employee_data["memorando_2"] = None
+        if (
+            employee_data["memorando_3"]
+            and employee_data["memorando_3"].lower() == "#N/D"
+        ):
+            employee_data["memorando_3"] = None
+        if employee_data["fecha_nombramiento_legado"] == "#N/D":
+            employee_data["fecha_nombramiento_legado"] = None
+        if employee_data["campana_general"] == "YANBAL - VILLAVICENCIO":
+            employee_data["campana_general"] = "YANBAL VILLAVICENCIO"
+        elif (
+            employee_data["campana_general"]
+            and employee_data["campana_general"] == "PAY U"
+            or employee_data["campana_general"] == "PAY-U"
+        ):
+            employee_data["campana_general"] = "PAYU"
+        if employee_data["caja_compensacion"] == "N/A":
+            employee_data["caja_compensacion"] = "No especificada"
+        if employee_data["eps"] == "ECOOPOS EPS":
+            employee_data["eps"] = "ECOOPSOS EPS"
+        elif employee_data["eps"] == "MEDIMAS":
+            employee_data["eps"] = "MEDIMAS EPS"
+        if employee_data["cargo"] == "DIRECTOR(A) DE INVESTIGACION":
+            employee_data["cargo"] = "DIRECTOR(A) DE INVESTIGACIONES"
         Employee.objects.create(
             identification=int(employee_data["cedula"]),
             last_name=employee_data["apellidos"],
@@ -69,7 +145,7 @@ def get_employees_from_db(request):
             expedition_date=parse_date(
                 # ! Delete after testing
                 employee_data["fecha_expedicion"]
-                or "Fri, 04 Aug 2023 00:00:00 GMT"
+                or "Mon, 01 Jan 1900 00:00:00 GMT"
             ),
             gender="M" if employee_data["genero"] == "MASCULINO" else "F",
             rh=employee_data["rh"] or "O+",
@@ -102,6 +178,7 @@ def get_employees_from_db(request):
             )[
                 0
             ],  # Fetching from database
+            legacy_health_provider=employee_data["cambio_eps_legado"],
             pension_fund=PensionFund.objects.get_or_create(
                 name=employee_data["pension"] or "No especificada"
             )[
@@ -136,7 +213,10 @@ def get_employees_from_db(request):
                 if employee_data["fecha_nombramiento"]
                 else None
             ),
-            management=Management.objects.get_or_create(name=employee_data["gerencia"])[
+            legacy_appointment_date=(employee_data["fecha_nombramiento_legado"]),
+            management=Management.objects.get_or_create(
+                name=employee_data["gerencia"] or "BANCO AGRARIO"
+            )[
                 0
             ],  # Fetching from database
             campaign=Campaign.objects.get_or_create(
@@ -158,5 +238,10 @@ def get_employees_from_db(request):
             shirt_size=employee_data.get("talla_camisa"),
             pant_size=employee_data.get("talla_pantalon"),
             shoe_size=employee_data.get("talla_zapatos"),
+            windows_user=employee_data.get("usuario_windows"),
+            memo_1=employee_data.get("memorando_1"),
+            memo_2=employee_data.get("memorando_2"),
+            memo_3=employee_data.get("memorando_3"),
+            photo=employee_data.get("foto"),
         )
     return JsonResponse({"message": "Employees saved to the database."})
