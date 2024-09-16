@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "django_auth_ldap",
     "administration",
     "employees",
+    "custom_user",
     "django.contrib.admin",
 ]
 
@@ -128,7 +129,7 @@ DATABASES = {
         "PORT": os.environ["DB_PORT"],
         "USER": os.environ["DB_USER"],
         "PASSWORD": os.environ["DB_PASSWORD"],
-        "NAME": "staffnet2",
+        "NAME": os.environ["DB_NAME"],
     }
 }
 
@@ -288,3 +289,5 @@ LOGGING = {
         "level": "ERROR",
     },
 }
+
+AUTH_USER_MODEL = "custom_user.CustomUser"

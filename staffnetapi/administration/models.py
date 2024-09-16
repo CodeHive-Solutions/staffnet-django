@@ -19,6 +19,7 @@ from django.db import models
 
 class JobTitle(models.Model):
     name = models.CharField(max_length=100)
+    status = models.BooleanField(default=True, verbose_name="Estado")
 
     class Meta:
         verbose_name = "Cargo"
@@ -49,6 +50,7 @@ class Locality(models.Model):
 
 class HealthProvider(models.Model):
     name = models.CharField(max_length=100)
+    status = models.BooleanField(default=True, verbose_name="Estado")
 
     class Meta:
         verbose_name = "Proveedor de Salud"
@@ -124,6 +126,7 @@ class Headquarter(models.Model):
 
 class Management(models.Model):
     name = models.CharField(max_length=100)
+    status = models.BooleanField(default=True, verbose_name="Estado")
 
     class Meta:
         verbose_name = "Gerencia"
@@ -139,6 +142,7 @@ class Management(models.Model):
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
+    status = models.BooleanField(default=True, verbose_name="Estado")
 
     class Meta:
         verbose_name = "Campaña"

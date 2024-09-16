@@ -135,6 +135,10 @@ def get_employees_from_db(request):
             employee_data["eps"] = "MEDIMAS EPS"
         if employee_data["cargo"] == "DIRECTOR(A) DE INVESTIGACION":
             employee_data["cargo"] = "DIRECTOR(A) DE INVESTIGACIONES"
+        if employee_data["pension"] == "N/A":
+            employee_data["pension"] = "No especificada"
+        if employee_data["cesantias"] == "N/A":
+            employee_data["cesantias"] = "No especificada"
         Employee.objects.create(
             identification=int(employee_data["cedula"]),
             last_name=employee_data["apellidos"],

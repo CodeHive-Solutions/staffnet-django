@@ -13,21 +13,64 @@ from .models import (
 )
 
 
-# @admin.register(Department)
-# class DepartmentAdmin(admin.ModelAdmin):
-#     list_display = ("name",)
-    # search_fields = ("name", "code")
-    # list_filter = ("created_at", "updated_at")
-
-
-# Register your models here.
-admin.site.register(JobTitle)
-admin.site.register(Locality)
-admin.site.register(HealthProvider)
+admin.site.register(Bank)
 admin.site.register(PensionFund)
 admin.site.register(CompensationFund)
 admin.site.register(SavingFund)
 admin.site.register(Headquarter)
-admin.site.register(Management)
-admin.site.register(Campaign)
-admin.site.register(Bank)
+admin.site.register(Locality)
+
+
+@admin.action(description="Cambiar el estado a activo")
+def enable(modeladmin, request, queryset):
+    queryset.update(status=True)
+
+
+@admin.action(description="Cambiar el estado a inactivo")
+def disable(modeladmin, request, queryset):
+    queryset.update(status=False)
+
+
+# Register your models here.
+@admin.register(JobTitle)
+class JobTitleAdmin(admin.ModelAdmin):
+    list_display = ("name", "status")
+    search_fields = ("name",)
+    list_filter = ("status",)
+    list_per_page = 25
+    list_max_show_all = 100
+    ordering = ("name",)
+    actions = [enable, disable]
+
+
+@admin.register(HealthProvider)
+class HealthProviderAdmin(admin.ModelAdmin):
+    list_display = ("name", "status")
+    search_fields = ("name",)
+    list_filter = ("status",)
+    list_per_page = 25
+    list_max_show_all = 100
+    ordering = ("name",)
+    actions = [enable, disable]
+
+
+@admin.register(Management)
+class ManagementAdmin(admin.ModelAdmin):
+    list_display = ("name", "status")
+    search_fields = ("name",)
+    list_filter = ("status",)
+    list_per_page = 25
+    list_max_show_all = 100
+    ordering = ("name",)
+    actions = [enable, disable]
+
+
+@admin.register(Campaign)
+class CampaignAdmin(admin.ModelAdmin):
+    list_display = ("name", "status")
+    search_fields = ("name",)
+    list_filter = ("status",)
+    list_per_page = 25
+    list_max_show_all = 100
+    ordering = ("name",)
+    actions = [enable, disable]

@@ -16,6 +16,72 @@ class UpperCharField(models.CharField):
         return value
 
 
+class TerminationReason(models.TextChoices):
+    LOW_REMUNERATION = "BAJA REMUNERACION", "Baja remuneración"
+    CALAMITY_FAMILY = "CALAMIDAD FAMILIAR", "Calamidad familiar"
+    CHANGE_ACTIVITY = "CAMBIO DE ACTIVIDAD", "Cambio de actividad"
+    CONFLICTS_LABOR_RELATIONS = (
+        "CONFLICTOS EN RELACIONES LABORALES",
+        "Conflictos en relaciones laborales",
+    )
+    DISPLACEMENT = "DESPLAZAMIENTO", "Desplazamiento"
+    LABOR_STRESS = "ESTRES LABORAL", "Estres laboral"
+    LACK_TOOLS_PERFORM_JOB = (
+        "FALTA DE HERRAMIENTAS PARA  DESEMPEÑAR LA LABOR",
+        "Falta de herramientas para  desempeñar la labor",
+    )
+    LACK_INDUCTION_ENTERING = (
+        "FALTA DE INDUCCION AL INGRESAR",
+        "Falta de inducción al ingresar",
+    )
+    LACK_RECOGNITION = "FALTA DE RECONOCIMIENTO", "Falta de reconocimiento"
+    WORKING_HOURS = "HORARIO LABORAL", "Horario laboral"
+    INCOMPATIBILITY_BOSS = (
+        "INCOMPATIBILIDAD CON EL JEFE",
+        "Incompatibilidad con el jefe",
+    )
+    BAD_WORK_ENVIRONMENT = "MAL AMBIENTE LABORAL", "Mal ambiente laboral"
+    STUDY_REASONS = "MOTIVOS DE ESTUDIO", "Motivos de estudio"
+    HEALTH_REASONS = "MOTIVOS DE SALUD", "Motivos de salud"
+    TRAVEL_REASONS = "MOTIVOS DE VIAJE", "Motivos de viaje"
+    PERSONAL_REASONS = "MOTIVOS PERSONALES", "Motivos personales"
+    NO_OPPORTUNITIES_LABOR_GROWTH = (
+        "NO HAY OPORTUNIDADES DE CRECIMIENTO LABORAL",
+        "No hay oportunidades de crecimiento laboral",
+    )
+    NO_OPPORTUNITIES_STUDY = (
+        "NO HAY OPORTUNIDADES DE ESTUDIAR",
+        "No hay oportunidades de estudiar",
+    )
+    OTHER_JOB_OFFER = "OTRA OFERTA LABORAL", "Otra oferta laboral"
+    OTHER = "OTRO", "Otro"
+    PERSONAL_PROBLEMS = "PROBLEMAS PERSONALES", "Problemas personales"
+    TERMINATION_CONTRACT_LEARNING = (
+        "TERMINACION DE CONTRATO APRENDIZAJE",
+        "Terminación de contrato aprendizaje",
+    )
+    TERMINATION_CONTRACT_JUST_CAUSE = (
+        "TERMINACION DE CONTRATO CON JUSTA CAUSA",
+        "Terminación de contrato con justa causa",
+    )
+    TERMINATION_CONTRACT_PROBATION_PERIOD = (
+        "TERMINACION DE CONTRATO POR PERIODO DE PRUEBA",
+        "Terminación de contrato por periodo de prueba",
+    )
+    TERMINATION_CONTRACT_WITHOUT_JUST_CAUSE = (
+        "TERMINACION DE CONTRATO SIN JUSTA CAUSA",
+        "Terminación de contrato sin justa causa",
+    )
+    TERMINATION_ABANDONMENT_POSITION = (
+        "TERMINACION POR ABANDONO DE PUESTO",
+        "Terminación por abandono de puesto",
+    )
+    TERMINATION_WORK_CONTRACTED = (
+        "TERMINACION POR OBRA O LABOR CONTRATADA ",
+        "Terminación por obra o labor contratada ",
+    )
+
+
 class UpperEmailField(models.EmailField):
     def pre_save(self, model_instance, add):
         value = getattr(model_instance, self.attname)
@@ -78,7 +144,7 @@ class EducationLevel(models.TextChoices):
     PRIMARY = "PRIMARIA", "Primaria"
     SECONDARY = "BACHILLER", "Bachiller"
     TECHNICAL = "TECNICO", "Técnico"  # RH don't want special characters
-    TECHNOLOGICAL = "TECNOLOGICO", "Tecnológico"  # RH don't want special characters
+    TECHNOLOGICAL = "TECNOLOGO", "Tecnologo"
     AUXILIARY = "AUXILIAR", "Auxiliar"
     UNIVERSITY = "UNIVERSITARIO", "Universitario"
     PROFESSIONAL = "PROFESIONAL", "Profesional"
@@ -98,9 +164,6 @@ class DocumentType(models.TextChoices):
     TI = "TI", "Tarjeta de Identidad"
     PP = "PP", "Pasaporte"
     RC = "RC", "Registro Civil"
-
-
-# ! There is not all the fields
 
 
 class Employee(models.Model):
@@ -326,12 +389,41 @@ class Employee(models.Model):
         null=True,
         blank=True,
     )
-    memo_1 = models.TextField(verbose_name="Memorando_1", null=True, blank=True)
-    memo_2 = models.TextField(verbose_name="Memorando_2", null=True, blank=True)
-    memo_3 = models.TextField(verbose_name="Memorando_3", null=True, blank=True)
-
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
+    # Memorandums
+    memo_1 = UpperCharField(
+        verbose_name="Memorando_1", null=True, blank=True, max_length=300
+    )
+    memo_2 = UpperCharField(
+        verbose_name="Memorando_2", null=True, blank=True, max_length=300
+    )
+    memo_3 = UpperCharField(
+        verbose_name="Memorando_3", null=True, blank=True, max_length=300
+    )
+    # termination_information
+    termination_date = models.DateField(
+        verbose_name="Fecha de Terminación", null=True, blank=True
+    )
+    termination_type = UpperCharField(
+        max_length=100,
+        choices=(
+            ("VOLUNTARIA", "Voluntaria"),
+            ("INVOLUNTARIA", "Involuntaria"),
+        ),
+        verbose_name="Tipo de Terminación",
+        null=True,
+        blank=True,
+    )
+    termination_reason = UpperCharField(
+        max_length=100,
+        choices=TerminationReason.choices,
+        verbose_name="Motivo de Terminación",
+        null=True,
+        blank=True,
+    )
+    rehire_eligibility = models.BooleanField(
+        default=True, verbose_name="Elegible para Recontratación"
+    )
+    status = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         verbose_name = "Empleado"
@@ -341,8 +433,20 @@ class Employee(models.Model):
             models.Index(fields=["windows_user"]),
         ]
 
+    def get_full_name(self) -> str:
+        """Return the full name of the user."""
+
+        def capitalize_name(name: str) -> str:
+            return " ".join(part.capitalize() for part in name.split())
+
+        if self.last_name:
+            return (
+                f"{capitalize_name(self.first_name)} {capitalize_name(self.last_name)}"
+            )
+        return capitalize_name(self.first_name)
+
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.identification}"
+        return self.get_full_name()
 
     def clean(self) -> None:
         # If remote_work is True and no date is provided, raise an error

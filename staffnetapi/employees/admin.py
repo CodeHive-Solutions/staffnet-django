@@ -3,13 +3,17 @@ from django.utils.html import format_html
 from .models import Employee
 
 
+@admin.display(description="Nombre completo")
+def get_full_name(obj):
+    return obj.get_full_name()
+
+
 # Register your models here.
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         "identification",
-        "first_name",
-        "last_name",
+        get_full_name,
         "campaign",
         "job_title",
     )
@@ -28,11 +32,11 @@ class EmployeeAdmin(admin.ModelAdmin):
 
     photo_thumbnail.short_description = "Previsualización de la foto"
 
-    search_fields = ("first_name", "last_name", "email")
-    list_filter = ("job_title",)
-    list_per_page = 20
+    search_fields = ("first_name", "last_name", "identification", "job_title__name")
+    list_filter = ("campaign",)
+    list_per_page = 25
     list_max_show_all = 100
-    ordering = ("first_name", "last_name")
+    ordering = ("first_name", "last_name", "campaign")
     fieldsets = (
         (
             "Información Personal",
@@ -93,6 +97,15 @@ class EmployeeAdmin(admin.ModelAdmin):
                         "memo_2",
                         "memo_3",
                     )
+                )
+            },
+        ),
+        (
+            "Información de retiro",
+            {
+                "fields": (
+                    ("termination_date", "termination_type", "termination_reason"),
+                    ("status", "rehire_eligibility"),
                 )
             },
         ),
