@@ -246,6 +246,6 @@ def get_employees_from_db(request):
             memo_1=employee_data.get("memorando_1"),
             memo_2=employee_data.get("memorando_2"),
             memo_3=employee_data.get("memorando_3"),
-            photo=employee_data.get("foto"),
+            photo=f"employees/photos/{employee_data['cedula']}.webp",
         )
     return JsonResponse({"message": "Employees saved to the database."})

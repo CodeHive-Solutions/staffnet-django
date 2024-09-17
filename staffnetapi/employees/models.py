@@ -169,7 +169,6 @@ class DocumentType(models.TextChoices):
 class Employee(models.Model):
     photo = models.ImageField(
         upload_to="employees/photos",
-        null=True,
         blank=True,
         verbose_name="Foto",
     )
@@ -391,13 +390,13 @@ class Employee(models.Model):
     )
     # Memorandums
     memo_1 = UpperCharField(
-        verbose_name="Memorando_1", null=True, blank=True, max_length=300
+        verbose_name="Memorando 1", null=True, blank=True, max_length=300
     )
     memo_2 = UpperCharField(
-        verbose_name="Memorando_2", null=True, blank=True, max_length=300
+        verbose_name="Memorando 2", null=True, blank=True, max_length=300
     )
     memo_3 = UpperCharField(
-        verbose_name="Memorando_3", null=True, blank=True, max_length=300
+        verbose_name="Memorando 3", null=True, blank=True, max_length=300
     )
     # termination_information
     termination_date = models.DateField(
@@ -446,7 +445,7 @@ class Employee(models.Model):
         return capitalize_name(self.first_name)
 
     def __str__(self):
-        return self.get_full_name()
+        return self.get_full_name() + f" ({self.identification})"
 
     def clean(self) -> None:
         # If remote_work is True and no date is provided, raise an error
@@ -460,4 +459,27 @@ class Employee(models.Model):
             raise ValidationError(
                 "La fecha de aplicación de teletrabajo no es requerida.",
             )
+        if self.remote_work and self.remote_work_application_date:
+            if self.remote_work_application_date < self.entry_date:
+                raise ValidationError(
+                    "La fecha de aplicación de teletrabajo no puede ser anterior a la fecha de ingreso.",
+                )
+        if self.termination_date and self.termination_date < self.entry_date:
+            raise ValidationError(
+                "La fecha de terminación no puede ser anterior a la fecha de ingreso.",
+            )
+        if not self.memo_1 and self.memo_2:
+            raise ValidationError(
+                "El memorando 2 no puede ser llenado sin llenar el memorando 1.",
+            )
+        if not self.memo_2 and self.memo_3:
+            raise ValidationError(
+                "El memorando 3 no puede ser llenado sin llenar el memorando 2.",
+            )
         return super().clean()
+
+    def save(self, *args, **kwargs):
+        # Custom logic for setting the image path based on the name field
+        if not self.photo:
+            self.photo = f"employees/photos/{self.identification}.webp"
+        super().save(*args, **kwargs)

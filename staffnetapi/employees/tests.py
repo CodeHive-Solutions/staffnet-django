@@ -121,7 +121,7 @@ class EmployeeModelTest(TestCase):
     def test_employee_str(self):
         """Tests that the employee string representation is correct."""
         employee = Employee.objects.create(**self.employee_data)
-        self.assertEqual(str(employee), "JOHN DOE - 123456789")
+        self.assertEqual(str(employee), "John Doe (123456789)")
 
     def test_employee_save(self):
         """Tests that the employee info is saved in uppercase."""

@@ -34,7 +34,7 @@ def disable(modeladmin, request, queryset):
 # Register your models here.
 @admin.register(JobTitle)
 class JobTitleAdmin(admin.ModelAdmin):
-    list_display = ("name", "status")
+    list_display = ("name", "rank", "status")
     search_fields = ("name",)
     list_filter = ("status",)
     list_per_page = 25

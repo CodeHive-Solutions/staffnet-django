@@ -1,24 +1,9 @@
 from django.db import models
 
 
-# Create your models here.
-# class Department(models.Model):
-#     name = models.CharField(max_length=100)
-
-#     class Meta:
-#         verbose_name = "Departamento"
-#         verbose_name_plural = "Departamentos"
-
-#     def __str__(self):
-#         return self.name
-
-#     def save(self, *args, **kwargs):
-#         self.name = self.name.upper()
-#         super(Department, self).save(*args, **kwargs)
-
-
 class JobTitle(models.Model):
     name = models.CharField(max_length=100)
+    rank = models.PositiveIntegerField()
     status = models.BooleanField(default=True, verbose_name="Estado")
 
     class Meta:
@@ -30,6 +15,16 @@ class JobTitle(models.Model):
 
     def save(self, *args, **kwargs):
         self.name = self.name.upper()
+        if "GERENTE JR" in self.name:
+            self.rank = 5
+        elif "GERENTE" in self.name:
+            self.rank = 6
+        elif "DIRECTOR" in self.name or "JEFE" in self.name:
+            self.rank = 4
+        elif "COORDINADOR" in self.name:
+            self.rank = 3
+        else:
+            self.rank = 1
         super(JobTitle, self).save(*args, **kwargs)
 
 
