@@ -51,6 +51,7 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ["ALLOWED_HOSTS"].split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -72,6 +74,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
 # if not "test" in sys.argv:
 # SECURE_SSL_REDIRECT = True

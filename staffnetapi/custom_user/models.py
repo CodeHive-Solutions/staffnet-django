@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
         verbose_name="Empleado",
         help_text="Seleccione qué empleado está relacionado con este usuario",
     )
-    password = None
+    # password = None
     last_login = None
     first_name = None
     last_name = None
