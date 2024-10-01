@@ -295,3 +295,9 @@ LOGGING = {
 }
 
 AUTH_USER_MODEL = "custom_user.CustomUser"
+
+LOGIN_URL = "/login/"
+
+LOGIN_REDIRECT_URL = "/employees/list/"
+
+LOGOUT_REDIRECT_URL = "/login/"

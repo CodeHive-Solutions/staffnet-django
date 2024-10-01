@@ -1,6 +1,9 @@
 import requests
 from datetime import datetime
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse
+from django.views.generic import ListView, DetailView
 from administration.models import *
 from .models import Employee
 
@@ -249,3 +252,58 @@ def get_employees_from_db(request):
             photo=f"employees/photos/{employee_data['cedula']}.webp",
         )
     return JsonResponse({"message": "Employees saved to the database."})
+
+
+class EmployeeListView(ListView):
+    """Employee list view."""
+
+    model = Employee
+    template_name = "employees/employee_list.html"
+    context_object_name = "employees"
+    paginate_by = 11
+
+    def get_queryset(self):
+        """Get the queryset."""
+        queryset = Employee.objects.only(
+            "first_name", "last_name", "identification", "job_title", "status"
+        ).order_by("first_name", "last_name")
+        query = self.request.GET.get("q")
+        if query:
+            # Filter the queryset based on the search query
+            queryset = queryset.filter(
+                Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(identification__icontains=query)
+                | Q(job_title__name__icontains=query)
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """Get the context data."""
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Employees"
+        return context
+
+
+class EmployeeDetailView(DetailView):
+    """Employee detail view."""
+
+    model = Employee
+    template_name = "employees/employee_detail.html"
+    context_object_name = "employee"
+
+    def get_context_data(self, **kwargs):
+        """Get the context data."""
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Employee Detail"
+        employee = self.get_object()
+        fields = []
+        for field in employee._meta.fields:
+            if field.concrete and not field.many_to_many and not field.one_to_many:
+                field_name = field.verbose_name  # Get the field's verbose name (label)
+                field_value = field.value_from_object(employee)  # Get the field value
+                fields.append(
+                    (field_name, field_value)
+                )  # Add the name and value to the list
+        context["fields"] = fields
+        return context
