@@ -4,7 +4,7 @@
 <div class="container mx-auto px-4 py-8">
     <h2 class="text-3xl font-bold mb-6 text-gray-800">Employee List</h2>
     <!-- Search form -->
-    <form method="GET" action="{% url 'employee_list' %}" class="mb-4">
+    <form method="GET" action="{% url 'employees-list' %}" class="mb-4">
         <input
             type="text"
             name="q"
@@ -49,7 +49,7 @@
                         </span>
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                        <a href="{% url 'employee_detail' employee.id %}" class="text-blue-600 hover:text-blue-900">View Details</a>
+                        <a href="{% url 'employees-detail' employee.id %}" class="text-blue-600 hover:text-blue-900">View Details</a>
                     </td>
                 </tr>
                 {% endfor %}

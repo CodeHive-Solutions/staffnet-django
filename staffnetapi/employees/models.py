@@ -1,10 +1,14 @@
+from io import BytesIO
+
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.core.files.base import ContentFile
 from django.core.validators import (
-    MinValueValidator,
     MaxValueValidator,
     MinLengthValidator,
+    MinValueValidator,
 )
+from django.db import models
+from PIL import Image
 
 
 class UpperCharField(models.CharField):
@@ -166,9 +170,13 @@ class DocumentType(models.TextChoices):
     RC = "RC", "Registro Civil"
 
 
+def user_photo_path(instance, _):
+    return f"employees/photos/{instance.identification}.webp"
+
+
 class Employee(models.Model):
     photo = models.ImageField(
-        upload_to="employees/photos",
+        upload_to=user_photo_path,
         blank=True,
         verbose_name="Foto",
     )
@@ -480,6 +488,30 @@ class Employee(models.Model):
 
     def save(self, *args, **kwargs):
         # Custom logic for setting the image path based on the name field
-        if not self.photo:
-            self.photo = f"employees/photos/{self.identification}.webp"
+        if self.photo:
+            if self.pk:
+                # Get the current instance from the database
+                current_instance = Employee.objects.get(pk=self.pk)
+                # Check if the image has changed
+                if current_instance.photo != self.photo:
+                    # Delete the old image
+                    current_instance.photo.delete(save=False)
+            # Open the uploaded image
+            image = Image.open(self.photo)
+
+            # Convert image to RGB mode if it's not (required for WebP conversion)
+            if image.mode in ("RGBA", "P"):
+                image = image.convert("RGB")
+
+            # Save the image to a BytesIO buffer as WebP format
+            buffer = BytesIO()
+            image.save(buffer, format="WEBP")
+
+            # Replace the original image with the WebP image
+            self.photo.save(
+                f"{self.identification}.webp",
+                ContentFile(buffer.getvalue()),
+                save=False,
+            )
+            self.photo.name = f"employees/photos/{self.identification}.webp"
         super().save(*args, **kwargs)

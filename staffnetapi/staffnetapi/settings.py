@@ -51,7 +51,6 @@ ALLOWED_HOSTS = [host.strip() for host in os.environ["ALLOWED_HOSTS"].split(",")
 # Application definition
 
 INSTALLED_APPS = [
-    "jazzmin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

@@ -1,14 +1,9 @@
-# employees/forms.py
-
-from django.contrib.admin.widgets import AdminDateWidget
 from django import forms
-from .models import Employee
+
+from .models import Employee  # Import your Employee model
 
 
 class EmployeeForm(forms.ModelForm):
     class Meta:
-        model = Employee
+        model = Employee  # The model the form is based on
         fields = "__all__"
-        widgets = {
-            'birth_date': AdminDateWidget(),  # Replace with your date field
-        }

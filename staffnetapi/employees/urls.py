@@ -1,10 +1,17 @@
 # urls for the employees app.
 
 from django.urls import path
-from .views import get_employees_from_db, EmployeeListView, EmployeeDetailView
+
+from .views import (
+    EmployeeDetailView,
+    EmployeeListView,
+    employee_update_view,
+    get_employees_from_db,
+)
 
 urlpatterns = [
     path("get_employees_from_db/", get_employees_from_db, name="get_employees_from_db"),
-    path("list/", EmployeeListView.as_view(), name="employee_list"),
-    path("<int:pk>/", EmployeeDetailView.as_view(), name="employee_detail"),
+    path("list/", EmployeeListView.as_view(), name="employees-list"),
+    path("<int:pk>/", EmployeeDetailView.as_view(), name="employees-detail"),
+    path("<int:pk>/update/", employee_update_view, name="employee-update"),
 ]
