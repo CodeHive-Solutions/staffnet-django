@@ -11,19 +11,19 @@ def get_full_name(obj):
 # Register your models here.
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = (
-        "identification",
-        get_full_name,
-        "campaign",
-        "job_title",
-    )
+    # list_display = (
+    #     "identification",
+    #     get_full_name,
+    #     "campaign",
+    #     "job_title",
+    # )
     # show all fields
     # list_display = [field.name for field in Employee._meta.fields]
-    readonly_fields = (
-        "photo_thumbnail",
-        "legacy_appointment_date",
-        "legacy_health_provider",
-    )
+    # readonly_fields = (
+    #     "photo_thumbnail",
+    #     "legacy_appointment_date",
+    #     "legacy_health_provider",
+    # )
 
     def photo_thumbnail(self, obj):
         if obj.photo:
@@ -33,10 +33,10 @@ class EmployeeAdmin(admin.ModelAdmin):
     photo_thumbnail.short_description = "Previsualización de la foto"
 
     search_fields = ("first_name", "last_name", "identification", "job_title__name")
-    list_filter = ("campaign",)
+    # list_filter = ("campaign",)
     list_per_page = 25
     list_max_show_all = 100
-    ordering = ("first_name", "last_name", "campaign")
+    # ordering = ("first_name", "last_name", "campaign")
     fieldsets = (
         (
             "Información Personal",

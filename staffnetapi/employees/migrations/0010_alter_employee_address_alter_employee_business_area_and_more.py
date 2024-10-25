@@ -7,118 +7,244 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0009_employee_windows_user_alter_employee_corporate_email'),
+        ("employees", "0009_employee_windows_user_alter_employee_corporate_email"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='employee',
-            name='address',
-            field=employees.models.UpperCharField(max_length=255, verbose_name='Dirección'),
+            model_name="employee",
+            name="address",
+            field=employees.models.UpperCharField(
+                max_length=255, verbose_name="Dirección"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='business_area',
-            field=employees.models.UpperCharField(choices=[('OPERATIVOS', 'Operativos'), ('ADMINISTRATIVOS', 'Administrativos')], max_length=100, verbose_name='Área de Negocio'),
+            model_name="employee",
+            name="business_area",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("OPERATIVOS", "Operativos"),
+                    ("ADMINISTRATIVOS", "Administrativos"),
+                ],
+                max_length=100,
+                verbose_name="Área de Negocio",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='cell_phone',
-            field=employees.models.UpperCharField(max_length=15, verbose_name='Celular'),
+            model_name="employee",
+            name="cell_phone",
+            field=employees.models.UpperCharField(
+                max_length=15, verbose_name="Celular"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='civil_status',
-            field=employees.models.UpperCharField(choices=[('SOLTERO(A)', 'Soltero(a)'), ('UNIÓN LIBRE', 'Unión Libre'), ('CASADO(A)', 'Casado(a)'), ('DIVORCIADO(A)', 'Divorciado(a)'), ('SEPARADO(A)', 'Separado(a)'), ('VIUDO(A)', 'Viudo(a)')], max_length=25, verbose_name='Estado Civil'),
+            model_name="employee",
+            name="civil_status",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("SOLTERO(A)", "Soltero(a)"),
+                    ("UNIÓN LIBRE", "Unión Libre"),
+                    ("CASADO(A)", "Casado(a)"),
+                    ("DIVORCIADO(A)", "Divorciado(a)"),
+                    ("SEPARADO(A)", "Separado(a)"),
+                    ("VIUDO(A)", "Viudo(a)"),
+                ],
+                max_length=25,
+                verbose_name="Estado Civil",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='contract_type',
-            field=employees.models.UpperCharField(choices=[('TERMINO INDEFINIDO', 'Termino Indefinido'), ('TERMINO FIJO', 'Termino Fijo'), ('OBRA O LABOR', 'Obra o Labor'), ('PRESTACIÓN DE SERVICIOS', 'Prestación de Servicios'), ('APRENDIZAJE', 'Aprendizaje')], max_length=100, verbose_name='Tipo de Contrato'),
+            model_name="employee",
+            name="contract_type",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("TERMINO INDEFINIDO", "Termino Indefinido"),
+                    ("TERMINO FIJO", "Termino Fijo"),
+                    ("OBRA O LABOR", "Obra o Labor"),
+                    ("PRESTACIÓN DE SERVICIOS", "Prestación de Servicios"),
+                    ("APRENDIZAJE", "Aprendizaje"),
+                ],
+                max_length=100,
+                verbose_name="Tipo de Contrato",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='document_type',
-            field=employees.models.UpperCharField(choices=[('CC', 'Cédula de Ciudadanía'), ('CE', 'Cédula de Extranjería'), ('TI', 'Tarjeta de Identidad'), ('PP', 'Pasaporte'), ('RC', 'Registro Civil')], default='CC', max_length=2, verbose_name='Tipo de Documento'),
+            model_name="employee",
+            name="document_type",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("CC", "Cédula de Ciudadanía"),
+                    ("CE", "Cédula de Extranjería"),
+                    ("TI", "Tarjeta de Identidad"),
+                    ("PP", "Pasaporte"),
+                    ("RC", "Registro Civil"),
+                ],
+                default="CC",
+                max_length=2,
+                verbose_name="Tipo de Documento",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='education_level',
-            field=employees.models.UpperCharField(choices=[('PRIMARIA', 'Primaria'), ('BACHILLER', 'Bachiller'), ('TÉCNICO', 'Técnico'), ('TECNOLÓGICO', 'Tecnológico'), ('AUXILIAR', 'Auxiliar'), ('UNIVERSITARIO', 'Universitario'), ('PROFESIONAL', 'Profesional'), ('ESPECIALIZACIÓN', 'Especialización')], max_length=100, verbose_name='Nivel de Educación'),
+            model_name="employee",
+            name="education_level",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("PRIMARIA", "Primaria"),
+                    ("BACHILLER", "Bachiller"),
+                    ("TÉCNICO", "Técnico"),
+                    ("TECNOLÓGICO", "Tecnológico"),
+                    ("AUXILIAR", "Auxiliar"),
+                    ("UNIVERSITARIO", "Universitario"),
+                    ("PROFESIONAL", "Profesional"),
+                    ("ESPECIALIZACIÓN", "Especialización"),
+                ],
+                max_length=100,
+                verbose_name="Nivel de Educación",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='emergency_contact',
-            field=employees.models.UpperCharField(max_length=100, verbose_name='Nombre Contacto de Emergencia'),
+            model_name="employee",
+            name="emergency_contact",
+            field=employees.models.UpperCharField(
+                max_length=100, verbose_name="Nombre Contacto de Emergencia"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='emergency_phone',
-            field=employees.models.UpperCharField(max_length=15, verbose_name='Teléfono de Emergencia'),
+            model_name="employee",
+            name="emergency_phone",
+            field=employees.models.UpperCharField(
+                max_length=15, verbose_name="Teléfono de Emergencia"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='emergency_relationship',
-            field=employees.models.UpperCharField(choices=[('PADRE', 'Padre'), ('MADRE', 'Madre'), ('OTRO', 'Otro'), ('ABUELO(A)', 'Abuelo(a)'), ('AMIGO(A)', 'Amigo(a)'), ('HERMANO(A)', 'Hermano(a)'), ('ESPOSO(A)', 'Esposo(a)'), ('HIJO(A)', 'Hijo(a)'), ('TÍO(A)', 'Tío(a)'), ('PRIMO(A)', 'Primo(a)'), ('FAMILIAR', 'Familiar')], max_length=100, verbose_name='Parentesco Contacto de Emergencia'),
+            model_name="employee",
+            name="emergency_relationship",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("PADRE", "Padre"),
+                    ("MADRE", "Madre"),
+                    ("OTRO", "Otro"),
+                    ("ABUELO(A)", "Abuelo(a)"),
+                    ("AMIGO(A)", "Amigo(a)"),
+                    ("HERMANO(A)", "Hermano(a)"),
+                    ("ESPOSO(A)", "Esposo(a)"),
+                    ("HIJO(A)", "Hijo(a)"),
+                    ("TÍO(A)", "Tío(a)"),
+                    ("PRIMO(A)", "Primo(a)"),
+                    ("FAMILIAR", "Familiar"),
+                ],
+                max_length=100,
+                verbose_name="Parentesco Contacto de Emergencia",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='expedition_place',
-            field=employees.models.UpperCharField(max_length=100, verbose_name='Lugar de Expedición'),
+            model_name="employee",
+            name="expedition_place",
+            field=employees.models.UpperCharField(
+                max_length=100, verbose_name="Lugar de Expedición"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='first_name',
-            field=employees.models.UpperCharField(max_length=100, verbose_name='Nombres'),
+            model_name="employee",
+            name="first_name",
+            field=employees.models.UpperCharField(
+                max_length=100, verbose_name="Nombres"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='fixed_phone',
-            field=employees.models.UpperCharField(blank=True, max_length=15, null=True, verbose_name='Teléfono Fijo'),
+            model_name="employee",
+            name="fixed_phone",
+            field=employees.models.UpperCharField(
+                blank=True, max_length=15, null=True, verbose_name="Teléfono Fijo"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='gender',
-            field=employees.models.UpperCharField(choices=[('M', 'Masculino'), ('F', 'Femenino')], max_length=1, verbose_name='Género'),
+            model_name="employee",
+            name="gender",
+            field=employees.models.UpperCharField(
+                choices=[("M", "Masculino"), ("F", "Femenino")],
+                max_length=1,
+                verbose_name="Género",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='identification',
-            field=employees.models.UpperCharField(max_length=10, unique=True, verbose_name='Identificación'),
+            model_name="employee",
+            name="identification",
+            field=employees.models.UpperCharField(
+                max_length=10, unique=True, verbose_name="Identificación"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='last_name',
-            field=employees.models.UpperCharField(max_length=100, verbose_name='Apellidos'),
+            model_name="employee",
+            name="last_name",
+            field=employees.models.UpperCharField(
+                max_length=100, verbose_name="Apellidos"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='neighborhood',
-            field=employees.models.UpperCharField(max_length=100, verbose_name='Barrio'),
+            model_name="employee",
+            name="neighborhood",
+            field=employees.models.UpperCharField(
+                max_length=100, verbose_name="Barrio"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='payroll_account',
-            field=employees.models.UpperCharField(max_length=50, verbose_name='Cuenta de Nómina'),
+            model_name="employee",
+            name="payroll_account",
+            field=employees.models.UpperCharField(
+                max_length=50, verbose_name="Cuenta de Nómina"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='rh',
-            field=employees.models.UpperCharField(choices=[('O+', 'O+'), ('O-', 'O-'), ('A+', 'A+'), ('A-', 'A-'), ('B+', 'B+'), ('B-', 'B-'), ('AB+', 'AB+'), ('AB-', 'AB-')], max_length=3, verbose_name='RH'),
+            model_name="employee",
+            name="rh",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("O+", "O+"),
+                    ("O-", "O-"),
+                    ("A+", "A+"),
+                    ("A-", "A-"),
+                    ("B+", "B+"),
+                    ("B-", "B-"),
+                    ("AB+", "AB+"),
+                    ("AB-", "AB-"),
+                ],
+                max_length=3,
+                verbose_name="RH",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='stratum',
-            field=employees.models.UpperCharField(choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6')], max_length=1, verbose_name='Estrato'),
+            model_name="employee",
+            name="stratum",
+            field=employees.models.UpperCharField(
+                choices=[
+                    ("1", "1"),
+                    ("2", "2"),
+                    ("3", "3"),
+                    ("4", "4"),
+                    ("5", "5"),
+                    ("6", "6"),
+                ],
+                max_length=1,
+                verbose_name="Estrato",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='title',
-            field=employees.models.UpperCharField(max_length=150, verbose_name='Título'),
+            model_name="employee",
+            name="title",
+            field=employees.models.UpperCharField(
+                max_length=150, verbose_name="Título"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='windows_user',
-            field=employees.models.UpperCharField(blank=True, max_length=50, null=True, unique=True, verbose_name='Usuario de Windows'),
+            model_name="employee",
+            name="windows_user",
+            field=employees.models.UpperCharField(
+                blank=True,
+                max_length=50,
+                null=True,
+                unique=True,
+                verbose_name="Usuario de Windows",
+            ),
         ),
     ]

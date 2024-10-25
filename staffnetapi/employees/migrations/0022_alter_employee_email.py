@@ -7,13 +7,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0021_alter_employee_civil_status_and_more'),
+        ("employees", "0021_alter_employee_civil_status_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='employee',
-            name='email',
-            field=employees.models.UpperEmailField(max_length=254, null=True, unique=True, verbose_name='Correo Electrónico'),
+            model_name="employee",
+            name="email",
+            field=employees.models.UpperEmailField(
+                max_length=254,
+                null=True,
+                unique=True,
+                verbose_name="Correo Electrónico",
+            ),
         ),
     ]

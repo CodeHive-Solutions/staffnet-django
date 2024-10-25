@@ -1,14 +1,23 @@
-from io import BytesIO
-
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.core.validators import (
     MaxValueValidator,
     MinLengthValidator,
     MinValueValidator,
 )
 from django.db import models
-from PIL import Image
+
+from .choices import (
+    BusinessArea,
+    CivilStatus,
+    ContractType,
+    DocumentType,
+    EducationLevel,
+    Relationship,
+    Rh,
+    ShirtSize,
+    TerminationReason,
+)
+from .utilities import user_photo_path
 
 
 class UpperCharField(models.CharField):
@@ -20,72 +29,6 @@ class UpperCharField(models.CharField):
         return value
 
 
-class TerminationReason(models.TextChoices):
-    LOW_REMUNERATION = "BAJA REMUNERACION", "Baja remuneración"
-    CALAMITY_FAMILY = "CALAMIDAD FAMILIAR", "Calamidad familiar"
-    CHANGE_ACTIVITY = "CAMBIO DE ACTIVIDAD", "Cambio de actividad"
-    CONFLICTS_LABOR_RELATIONS = (
-        "CONFLICTOS EN RELACIONES LABORALES",
-        "Conflictos en relaciones laborales",
-    )
-    DISPLACEMENT = "DESPLAZAMIENTO", "Desplazamiento"
-    LABOR_STRESS = "ESTRES LABORAL", "Estres laboral"
-    LACK_TOOLS_PERFORM_JOB = (
-        "FALTA DE HERRAMIENTAS PARA  DESEMPEÑAR LA LABOR",
-        "Falta de herramientas para  desempeñar la labor",
-    )
-    LACK_INDUCTION_ENTERING = (
-        "FALTA DE INDUCCION AL INGRESAR",
-        "Falta de inducción al ingresar",
-    )
-    LACK_RECOGNITION = "FALTA DE RECONOCIMIENTO", "Falta de reconocimiento"
-    WORKING_HOURS = "HORARIO LABORAL", "Horario laboral"
-    INCOMPATIBILITY_BOSS = (
-        "INCOMPATIBILIDAD CON EL JEFE",
-        "Incompatibilidad con el jefe",
-    )
-    BAD_WORK_ENVIRONMENT = "MAL AMBIENTE LABORAL", "Mal ambiente laboral"
-    STUDY_REASONS = "MOTIVOS DE ESTUDIO", "Motivos de estudio"
-    HEALTH_REASONS = "MOTIVOS DE SALUD", "Motivos de salud"
-    TRAVEL_REASONS = "MOTIVOS DE VIAJE", "Motivos de viaje"
-    PERSONAL_REASONS = "MOTIVOS PERSONALES", "Motivos personales"
-    NO_OPPORTUNITIES_LABOR_GROWTH = (
-        "NO HAY OPORTUNIDADES DE CRECIMIENTO LABORAL",
-        "No hay oportunidades de crecimiento laboral",
-    )
-    NO_OPPORTUNITIES_STUDY = (
-        "NO HAY OPORTUNIDADES DE ESTUDIAR",
-        "No hay oportunidades de estudiar",
-    )
-    OTHER_JOB_OFFER = "OTRA OFERTA LABORAL", "Otra oferta laboral"
-    OTHER = "OTRO", "Otro"
-    PERSONAL_PROBLEMS = "PROBLEMAS PERSONALES", "Problemas personales"
-    TERMINATION_CONTRACT_LEARNING = (
-        "TERMINACION DE CONTRATO APRENDIZAJE",
-        "Terminación de contrato aprendizaje",
-    )
-    TERMINATION_CONTRACT_JUST_CAUSE = (
-        "TERMINACION DE CONTRATO CON JUSTA CAUSA",
-        "Terminación de contrato con justa causa",
-    )
-    TERMINATION_CONTRACT_PROBATION_PERIOD = (
-        "TERMINACION DE CONTRATO POR PERIODO DE PRUEBA",
-        "Terminación de contrato por periodo de prueba",
-    )
-    TERMINATION_CONTRACT_WITHOUT_JUST_CAUSE = (
-        "TERMINACION DE CONTRATO SIN JUSTA CAUSA",
-        "Terminación de contrato sin justa causa",
-    )
-    TERMINATION_ABANDONMENT_POSITION = (
-        "TERMINACION POR ABANDONO DE PUESTO",
-        "Terminación por abandono de puesto",
-    )
-    TERMINATION_WORK_CONTRACTED = (
-        "TERMINACION POR OBRA O LABOR CONTRATADA ",
-        "Terminación por obra o labor contratada ",
-    )
-
-
 class UpperEmailField(models.EmailField):
     def pre_save(self, model_instance, add):
         value = getattr(model_instance, self.attname)
@@ -95,90 +38,10 @@ class UpperEmailField(models.EmailField):
         return value
 
 
-class CivilStatus(models.TextChoices):
-    SINGLE = "SOLTERO(A)", "Soltero(a)"
-    COMMON_LAW = "UNION LIBRE", "Unión Libre"
-    MARRIED = "CASADO(A)", "Casado(a)"
-    DIVORCED = "DIVORCIADO(A)", "Divorciado(a)"
-    SEPARATED = "SEPARADO(A)", "Separado(a)"
-    WIDOWED = "VIUDO(A)", "Viudo(a)"
-
-
-class ShirtSize(models.TextChoices):
-    XS = "XS", "XS"
-    S = "S", "S"
-    M = "M", "M"
-    L = "L", "L"
-    XL = "XL", "XL"
-    XXL = "XXL", "XXL"
-    XXXL = "XXXL", "XXXL"
-
-
-class Relationship(models.TextChoices):
-    FATHER = "PADRE", "Padre"
-    MOTHER = "MADRE", "Madre"
-    OTHER = "OTRO", "Otro"
-    GRANDFATHER = "ABUELO(A)", "Abuelo(a)"
-    FRIEND = "AMIGO(A)", "Amigo(a)"
-    BROTHER = "HERMANO(A)", "Hermano(a)"
-    SPOUSE = "ESPOSO(A)", "Esposo(a)"
-    SON = "HIJO(A)", "Hijo(a)"
-    UNCLE = "TIO(A)", "Tío(a)"
-    COUSIN = "PRIMO(A)", "Primo(a)"
-    RELATIVE = "FAMILIAR", "Familiar"
-
-
-class BusinessArea(models.TextChoices):
-    OPERATIONS = "OPERATIVOS", "Operativos"
-    ADMINISTRATIVE = "ADMINISTRATIVOS", "Administrativos"
-
-
-class Rh(models.TextChoices):
-    O_POSITIVE = "O+", "O+"
-    O_NEGATIVE = "O-", "O-"
-    A_POSITIVE = "A+", "A+"
-    A_NEGATIVE = "A-", "A-"
-    B_POSITIVE = "B+", "B+"
-    B_NEGATIVE = "B-", "B-"
-    AB_POSITIVE = "AB+", "AB+"
-    AB_NEGATIVE = "AB-", "AB-"
-
-
-class EducationLevel(models.TextChoices):
-    PRIMARY = "PRIMARIA", "Primaria"
-    SECONDARY = "BACHILLER", "Bachiller"
-    TECHNICAL = "TECNICO", "Técnico"  # RH don't want special characters
-    TECHNOLOGICAL = "TECNOLOGO", "Tecnologo"
-    AUXILIARY = "AUXILIAR", "Auxiliar"
-    UNIVERSITY = "UNIVERSITARIO", "Universitario"
-    PROFESSIONAL = "PROFESIONAL", "Profesional"
-    SPECIALIZATION = "ESPECIALIZACION", "Especialización"
-
-
-class ContractType(models.TextChoices):
-    INDEFINITE_TERM = "TERMINO INDEFINIDO", "Termino Indefinido"
-    WORK = "OBRA O LABOR", "Obra o Labor"
-    SERVICE = "PRESTACION DE SERVICIOS", "Prestación de Servicios"
-    LEARNING = "APRENDIZAJE", "Aprendizaje"
-
-
-class DocumentType(models.TextChoices):
-    CC = "CC", "Cédula de Ciudadanía"
-    CE = "CE", "Cédula de Extranjería"
-    TI = "TI", "Tarjeta de Identidad"
-    PP = "PP", "Pasaporte"
-    RC = "RC", "Registro Civil"
-
-
-def user_photo_path(instance, _):
-    return f"employees/photos/{instance.identification}.webp"
-
-
-class Employee(models.Model):
+# Personal Information Model
+class PersonalInformation(models.Model):
     photo = models.ImageField(
-        upload_to=user_photo_path,
-        blank=True,
-        verbose_name="Foto",
+        upload_to=user_photo_path, blank=True, verbose_name="Foto"
     )
     identification = models.PositiveIntegerField(
         unique=True,
@@ -209,51 +72,35 @@ class Employee(models.Model):
     civil_status = UpperCharField(
         max_length=25, choices=CivilStatus.choices, verbose_name="Estado Civil"
     )
-
     sons = models.PositiveIntegerField(
-        default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(30)],
-        verbose_name="Número de Hijos",
+        verbose_name="Número de Hijos", validators=[MinValueValidator(0)]
     )
-
     responsible_persons = models.PositiveIntegerField(
-        default=0,
-        validators=[MinValueValidator(0), MaxValueValidator(30)],
-        verbose_name="Personas a Cargo",
+        verbose_name="Personas a Cargo", validators=[MinValueValidator(0)]
     )
-
-    stratum = models.CharField(
-        max_length=1,
-        choices=(
-            ("1", "1"),
-            ("2", "2"),
-            ("3", "3"),
-            ("4", "4"),
-            ("5", "5"),
-            ("6", "6"),
-        ),
-        verbose_name="Estrato",
+    stratum = models.PositiveIntegerField(
+        verbose_name="Estrato", validators=[MinValueValidator(0), MaxValueValidator(6)]
     )
-
-    fixed_phone = models.CharField(
-        verbose_name="Teléfono Fijo",
-        null=True,
-        blank=True,
-        max_length=15,
-        validators=[MinLengthValidator(7)],
+    shirt_size = UpperCharField(
+        max_length=4, choices=ShirtSize.choices, verbose_name="Talla de Camisa"
     )
-    cell_phone = UpperCharField(
-        verbose_name="Celular",
-        max_length=15,
-        validators=[MinLengthValidator(10)],
-    )
-    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico", null=True)
-    corporate_email = UpperEmailField(
-        unique=True,
-        verbose_name="Correo Electrónico Corporativo",
+    pant_size = models.PositiveIntegerField(
+        validators=[MinValueValidator(6), MaxValueValidator(50)],
+        verbose_name="Talla de Pantalón",
         null=True,
         blank=True,
     )
+    shoe_size = models.PositiveIntegerField(
+        verbose_name="Talla de Zapato", validators=[MinValueValidator(20)]
+    )
+
+    class Meta:
+        verbose_name = "Información Personal"
+        verbose_name_plural = "Informaciones Personales"
+
+
+# Contact Information Model
+class ContactInformation(models.Model):
     address = UpperCharField(max_length=255, verbose_name="Dirección")
     neighborhood = UpperCharField(max_length=100, verbose_name="Barrio")
     locality = models.ForeignKey(
@@ -262,18 +109,44 @@ class Employee(models.Model):
         related_name="employees",
         verbose_name="Localidad",
     )
-    emergency_contact = UpperCharField(
-        max_length=100, verbose_name="Nombre Contacto de Emergencia"
+    fixed_phone = models.CharField(
+        verbose_name="Teléfono Fijo",
+        null=True,
+        blank=True,
+        max_length=15,
+        validators=[MinLengthValidator(7)],
     )
-    emergency_relationship = UpperCharField(
-        max_length=100,
-        choices=Relationship.choices,
-        verbose_name="Parentesco Contacto de Emergencia",
+    cell_phone = UpperCharField(
+        verbose_name="Celular", max_length=15, validators=[MinLengthValidator(10)]
     )
-    emergency_phone = UpperCharField(
-        max_length=15, verbose_name="Teléfono de Emergencia"
+    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico", null=True)
+    corporate_email = UpperEmailField(
+        unique=True,
+        verbose_name="Correo Electrónico Corporativo",
+        null=True,
+        blank=True,
     )
-    # Education
+
+    class Meta:
+        verbose_name = "Información de Contacto"
+        verbose_name_plural = "Informaciones de Contacto"
+
+
+# Emergency Contact Model
+class EmergencyContact(models.Model):
+    name = UpperCharField(max_length=100, verbose_name="Nombre Contacto de Emergencia")
+    relationship = UpperCharField(
+        max_length=100, choices=Relationship.choices, verbose_name="Parentesco"
+    )
+    phone = UpperCharField(max_length=15, verbose_name="Teléfono de Emergencia")
+
+    class Meta:
+        verbose_name = "Contacto de Emergencia"
+        verbose_name_plural = "Contactos de Emergencia"
+
+
+# Education Model
+class Education(models.Model):
     education_level = UpperCharField(
         max_length=100,
         choices=EducationLevel.choices,
@@ -283,8 +156,33 @@ class Employee(models.Model):
     ongoing_studies = models.BooleanField(
         default=False, verbose_name="Estudios en Curso"
     )
-    # Laboral
+
+    class Meta:
+        verbose_name = "Educación"
+        verbose_name_plural = "Educación"
+
+
+# Employment Details Model
+class EmploymentDetails(models.Model):
     affiliation_date = models.DateField(verbose_name="Fecha de Afiliación")
+    entry_date = models.DateField(verbose_name="Fecha de Ingreso")
+    salary = models.DecimalField(
+        max_digits=65, decimal_places=2, verbose_name="Salario"
+    )
+    transportation_allowance = models.DecimalField(
+        max_digits=65, decimal_places=2, verbose_name="Auxilio de Transporte"
+    )
+    remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
+    remote_work_application_date = models.DateField(
+        verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
+    )
+    payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
+    bank = models.ForeignKey(
+        "administration.Bank",
+        on_delete=models.PROTECT,
+        related_name="employees",
+        verbose_name="Banco",
+    )
     health_provider = models.ForeignKey(
         "administration.HealthProvider",
         on_delete=models.PROTECT,
@@ -311,13 +209,6 @@ class Employee(models.Model):
         on_delete=models.PROTECT,
         related_name="employees",
         verbose_name="Cesantías",
-    )
-    payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
-    bank = models.ForeignKey(
-        "administration.Bank",
-        on_delete=models.PROTECT,
-        related_name="employees",
-        verbose_name="Banco",
     )
     headquarter = models.ForeignKey(
         "administration.Headquarter",
@@ -358,64 +249,31 @@ class Employee(models.Model):
     contract_type = UpperCharField(
         max_length=100, choices=ContractType.choices, verbose_name="Tipo de Contrato"
     )
-    entry_date = models.DateField(verbose_name="Fecha de Ingreso")
-    salary = models.DecimalField(
-        max_digits=65, decimal_places=2, verbose_name="Salario"
-    )
-    transportation_allowance = models.DecimalField(
-        max_digits=65, decimal_places=2, verbose_name="Auxilio de Transporte"
-    )
-    remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
-    # If the employee has remote work, the date when it was applied
-    remote_work_application_date = models.DateField(
-        verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
-    )
     windows_user = UpperCharField(
-        max_length=50,
-        verbose_name="Usuario de Windows",
-        null=True,
-        blank=True,
-        unique=True,
+        max_length=50, verbose_name="Usuario de Windows", null=True, blank=True
     )
-    shirt_size = models.CharField(
-        max_length=4,
-        choices=ShirtSize.choices,
-        verbose_name="Talla de Camisa",
-        null=True,
-        blank=True,
-    )
-    pant_size = models.PositiveIntegerField(
-        validators=[MinValueValidator(6), MaxValueValidator(50)],
-        verbose_name="Talla de Pantalón",
-        null=True,
-        blank=True,
-    )
-    shoe_size = models.PositiveIntegerField(
-        validators=[MinValueValidator(25), MaxValueValidator(50)],
-        verbose_name="Talla de Zapato",
-        null=True,
-        blank=True,
-    )
-    # Memorandums
-    memo_1 = UpperCharField(
-        verbose_name="Memorando 1", null=True, blank=True, max_length=300
-    )
-    memo_2 = UpperCharField(
-        verbose_name="Memorando 2", null=True, blank=True, max_length=300
-    )
-    memo_3 = UpperCharField(
-        verbose_name="Memorando 3", null=True, blank=True, max_length=300
-    )
-    # termination_information
+
+    class Meta:
+        verbose_name = "Detalles Laborales"
+        verbose_name_plural = "Detalles Laborales"
+
+    def clean_remote_work_date(self):
+        if self.remote_work and not self.remote_work_application_date:
+            raise ValidationError("Fecha de aplicación de teletrabajo requerida.")
+        elif not self.remote_work and self.remote_work_application_date:
+            raise ValidationError(
+                "No se puede aplicar teletrabajo sin marcar la opción."
+            )
+
+
+# Termination Details Model
+class TerminationDetails(models.Model):
     termination_date = models.DateField(
         verbose_name="Fecha de Terminación", null=True, blank=True
     )
     termination_type = UpperCharField(
         max_length=100,
-        choices=(
-            ("VOLUNTARIA", "Voluntaria"),
-            ("INVOLUNTARIA", "Involuntaria"),
-        ),
+        choices=(("VOLUNTARIA", "Voluntaria"), ("INVOLUNTARIA", "Involuntaria")),
         verbose_name="Tipo de Terminación",
         null=True,
         blank=True,
@@ -430,88 +288,71 @@ class Employee(models.Model):
     rehire_eligibility = models.BooleanField(
         default=True, verbose_name="Elegible para Recontratación"
     )
+
+    class Meta:
+        verbose_name = "Detalles de Terminación"
+        verbose_name_plural = "Detalles de Terminación"
+
+
+# Main Employee Model with OneToOne Relationships
+class Employee(models.Model):
+    """Employee model with one-to-one relationships and shortcuts to main fields."""
+
+    personal_info = models.OneToOneField(
+        PersonalInformation, on_delete=models.CASCADE, related_name="employee"
+    )
+    contact_info = models.OneToOneField(
+        ContactInformation, on_delete=models.CASCADE, related_name="employee"
+    )
+    emergency_contact = models.OneToOneField(
+        EmergencyContact, on_delete=models.CASCADE, related_name="employee"
+    )
+    education = models.OneToOneField(
+        Education, on_delete=models.CASCADE, related_name="employee"
+    )
+    employment_details = models.OneToOneField(
+        EmploymentDetails, on_delete=models.CASCADE, related_name="employee"
+    )
+    termination_details = models.OneToOneField(
+        TerminationDetails, on_delete=models.CASCADE, related_name="employee"
+    )
     status = models.BooleanField(default=True, verbose_name="Activo")
 
     class Meta:
         verbose_name = "Empleado"
         verbose_name_plural = "Empleados"
-        indexes = [
-            models.Index(fields=["identification"]),
-            models.Index(fields=["windows_user"]),
-        ]
-
-    def get_full_name(self) -> str:
-        """Return the full name of the user."""
-
-        def capitalize_name(name: str) -> str:
-            return " ".join(part.capitalize() for part in name.split())
-
-        if self.last_name:
-            return (
-                f"{capitalize_name(self.first_name)} {capitalize_name(self.last_name)}"
-            )
-        return capitalize_name(self.first_name)
 
     def __str__(self):
-        return self.get_full_name() + f" ({self.identification})"
+        return f"{self.get_full_name()} ({self.identification})"
 
-    def clean(self) -> None:
-        # If remote_work is True and no date is provided, raise an error
-        if self.remote_work and not self.remote_work_application_date:
-            raise ValidationError(
-                "La fecha de aplicación de teletrabajo es requerida.",
-            )
+    # Shortcut Properties
+    @property
+    def identification(self):
+        """Access the 'identification' field from 'PersonalInformation'."""
+        return self.personal_info.identification
 
-        # If remote_work is False and date is set, raise an error or clear the date
-        if not self.remote_work and self.remote_work_application_date:
-            raise ValidationError(
-                "La fecha de aplicación de teletrabajo no es requerida.",
-            )
-        if self.remote_work and self.remote_work_application_date:
-            if self.remote_work_application_date < self.entry_date:
-                raise ValidationError(
-                    "La fecha de aplicación de teletrabajo no puede ser anterior a la fecha de ingreso.",
-                )
-        if self.termination_date and self.termination_date < self.entry_date:
-            raise ValidationError(
-                "La fecha de terminación no puede ser anterior a la fecha de ingreso.",
-            )
-        if not self.memo_1 and self.memo_2:
-            raise ValidationError(
-                "El memorando 2 no puede ser llenado sin llenar el memorando 1.",
-            )
-        if not self.memo_2 and self.memo_3:
-            raise ValidationError(
-                "El memorando 3 no puede ser llenado sin llenar el memorando 2.",
-            )
-        return super().clean()
+    @property
+    def first_name(self):
+        """Access the 'first_name' field from 'PersonalInformation'."""
+        return self.personal_info.first_name
 
-    def save(self, *args, **kwargs):
-        # Custom logic for setting the image path based on the name field
-        if self.photo:
-            if self.pk:
-                # Get the current instance from the database
-                current_instance = Employee.objects.get(pk=self.pk)
-                # Check if the image has changed
-                if current_instance.photo != self.photo:
-                    # Delete the old image
-                    current_instance.photo.delete(save=False)
-            # Open the uploaded image
-            image = Image.open(self.photo)
+    @property
+    def last_name(self):
+        """Access the 'last_name' field from 'PersonalInformation'."""
+        return self.personal_info.last_name
 
-            # Convert image to RGB mode if it's not (required for WebP conversion)
-            if image.mode in ("RGBA", "P"):
-                image = image.convert("RGB")
+    @property
+    def email(self):
+        """Access the 'email' field from 'ContactInformation'."""
+        return self.contact_info.email
 
-            # Save the image to a BytesIO buffer as WebP format
-            buffer = BytesIO()
-            image.save(buffer, format="WEBP")
+    @property
+    def corporate_email(self):
+        """Access the 'corporate_email' field from 'ContactInformation'."""
+        return self.contact_info.corporate_email
 
-            # Replace the original image with the WebP image
-            self.photo.save(
-                f"{self.identification}.webp",
-                ContentFile(buffer.getvalue()),
-                save=False,
-            )
-            self.photo.name = f"employees/photos/{self.identification}.webp"
-        super().save(*args, **kwargs)
+    def get_full_name(self) -> str:
+        """Return the full name of the employee."""
+        if self.last_name:
+            return f"{self.first_name} {self.last_name}".title()
+        return self.first_name.title()

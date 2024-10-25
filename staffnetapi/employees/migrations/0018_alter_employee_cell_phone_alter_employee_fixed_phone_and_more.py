@@ -8,23 +8,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0017_alter_employee_pant_size_alter_employee_shirt_size_and_more'),
+        (
+            "employees",
+            "0017_alter_employee_pant_size_alter_employee_shirt_size_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='employee',
-            name='cell_phone',
-            field=employees.models.UpperCharField(max_length=15, validators=[django.core.validators.MinLengthValidator(10)], verbose_name='Celular'),
+            model_name="employee",
+            name="cell_phone",
+            field=employees.models.UpperCharField(
+                max_length=15,
+                validators=[django.core.validators.MinLengthValidator(10)],
+                verbose_name="Celular",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='fixed_phone',
-            field=models.CharField(blank=True, max_length=15, null=True, validators=[django.core.validators.MinLengthValidator(7)], verbose_name='Teléfono Fijo'),
+            model_name="employee",
+            name="fixed_phone",
+            field=models.CharField(
+                blank=True,
+                max_length=15,
+                null=True,
+                validators=[django.core.validators.MinLengthValidator(7)],
+                verbose_name="Teléfono Fijo",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='identification',
-            field=models.PositiveIntegerField(unique=True, validators=[django.core.validators.MinValueValidator(100000)], verbose_name='Identificación'),
+            model_name="employee",
+            name="identification",
+            field=models.PositiveIntegerField(
+                unique=True,
+                validators=[django.core.validators.MinValueValidator(100000)],
+                verbose_name="Identificación",
+            ),
         ),
     ]

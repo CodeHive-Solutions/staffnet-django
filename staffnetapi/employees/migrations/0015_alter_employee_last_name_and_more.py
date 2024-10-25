@@ -7,22 +7,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('administration', '0004_bank'),
-        ('employees', '0014_alter_employee_appointment_date'),
+        ("administration", "0004_bank"),
+        ("employees", "0014_alter_employee_appointment_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='employee',
-            name='last_name',
-            field=employees.models.UpperCharField(max_length=100, null=True, verbose_name='Apellidos'),
+            model_name="employee",
+            name="last_name",
+            field=employees.models.UpperCharField(
+                max_length=100, null=True, verbose_name="Apellidos"
+            ),
         ),
         migrations.AddIndex(
-            model_name='employee',
-            index=models.Index(fields=['corporate_email'], name='employees_e_corpora_fff004_idx'),
+            model_name="employee",
+            index=models.Index(
+                fields=["corporate_email"], name="employees_e_corpora_fff004_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='employee',
-            index=models.Index(fields=['windows_user'], name='employees_e_windows_66265b_idx'),
+            model_name="employee",
+            index=models.Index(
+                fields=["windows_user"], name="employees_e_windows_66265b_idx"
+            ),
         ),
     ]

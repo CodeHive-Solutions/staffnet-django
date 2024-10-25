@@ -7,33 +7,47 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0029_alter_employee_bank_alter_employee_campaign_and_more'),
+        ("employees", "0029_alter_employee_bank_alter_employee_campaign_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employee',
-            name='termination_date',
-            field=models.DateField(blank=True, null=True, verbose_name='Fecha de Terminación'),
+            model_name="employee",
+            name="termination_date",
+            field=models.DateField(
+                blank=True, null=True, verbose_name="Fecha de Terminación"
+            ),
         ),
         migrations.AddField(
-            model_name='employee',
-            name='termination_type',
-            field=employees.models.UpperCharField(blank=True, choices=[('VOLUNTARIA', 'Voluntaria')], max_length=100, null=True, verbose_name='Tipo de Terminación'),
+            model_name="employee",
+            name="termination_type",
+            field=employees.models.UpperCharField(
+                blank=True,
+                choices=[("VOLUNTARIA", "Voluntaria")],
+                max_length=100,
+                null=True,
+                verbose_name="Tipo de Terminación",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='memo_1',
-            field=employees.models.UpperCharField(blank=True, max_length=300, null=True, verbose_name='Memorando_1'),
+            model_name="employee",
+            name="memo_1",
+            field=employees.models.UpperCharField(
+                blank=True, max_length=300, null=True, verbose_name="Memorando_1"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='memo_2',
-            field=employees.models.UpperCharField(blank=True, max_length=300, null=True, verbose_name='Memorando_2'),
+            model_name="employee",
+            name="memo_2",
+            field=employees.models.UpperCharField(
+                blank=True, max_length=300, null=True, verbose_name="Memorando_2"
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='memo_3',
-            field=employees.models.UpperCharField(blank=True, max_length=300, null=True, verbose_name='Memorando_3'),
+            model_name="employee",
+            name="memo_3",
+            field=employees.models.UpperCharField(
+                blank=True, max_length=300, null=True, verbose_name="Memorando_3"
+            ),
         ),
     ]
