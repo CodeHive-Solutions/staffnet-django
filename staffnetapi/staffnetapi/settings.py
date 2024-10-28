@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+from datetime import datetime
+from pathlib import Path
+
 import ldap
 from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
-from datetime import datetime
 from dotenv import load_dotenv
-from pathlib import Path
 
 ENV_PATH = Path(".env")
 
@@ -156,8 +157,8 @@ DATABASES = {
 # ]
 
 AUTHENTICATION_BACKENDS = [
-    "django_auth_ldap.backend.LDAPBackend",
-    "django.contrib.auth.backends.ModelBackend",
+    "custom_user.auth.UserBackend.ExistingUserLDAPBackend",
+    # "django_auth_ldap.backend.LDAPBackend",
 ]
 
 # LDAP configuration

@@ -28,7 +28,7 @@ def parse_date(date_str):
     if not date_str:
         return None
     if date_str == "1900-01-01":
-        return None
+        return date_str
     date_obj = datetime.strptime(date_str, "%a, %d %b %Y %H:%M:%S %Z")
     return date_obj.strftime("%Y-%m-%d")
 
@@ -38,6 +38,12 @@ def get_employees_from_db(request):
 
     # Clear previous data
     Employee.objects.all().delete()
+    PersonalInformation.objects.all().delete()
+    ContactInformation.objects.all().delete()
+    EmergencyContact.objects.all().delete()
+    Education.objects.all().delete()
+    EmploymentDetails.objects.all().delete()
+    TerminationDetails.objects.all().delete()
     Bank.objects.all().delete()
     Campaign.objects.all().delete()
     CompensationFund.objects.all().delete()
@@ -48,6 +54,8 @@ def get_employees_from_db(request):
     Management.objects.all().delete()
     PensionFund.objects.all().delete()
     SavingFund.objects.all().delete()
+    print("Previous data cleared.")
+    print(PersonalInformation.objects.all())
 
     # Fetch employee data from API
     cookie_token = "7ca6b0de-2d43-4ab9-967b-01ffdabbb4d8"
@@ -79,8 +87,6 @@ def get_employees_from_db(request):
                 if employee_data[key] and type(employee_data[key]) == str
                 else employee_data[key]
             )
-            if employee_data[key] == None:
-                employee_data[key].delete()
             if (
                 not employee_data[key]
                 or employee_data[key] == "null"
@@ -176,7 +182,6 @@ def get_employees_from_db(request):
             / "media"
             / f"employees/profile_pictures/{employee_data['cedula']}.webp"
         )
-        print("headquarter:", employee_data.get("sede", "No especificada"))
 
         # Personal Information
         personal_info = PersonalInformation(
@@ -193,19 +198,19 @@ def get_employees_from_db(request):
             gender="M" if employee_data.get("genero") == "MASCULINO" else "F",
             rh=employee_data.get("rh") or "O+",
             civil_status=employee_data.get("estado_civil"),
-            sons=employee_data.get("hijos", 0),
-            responsible_persons=employee_data.get("personas_a_cargo", 0),
+            sons=employee_data.get("hijos") or 0,
+            responsible_persons=employee_data.get("personas_a_cargo") or 0,
+            shirt_size=employee_data.get("talla_camisa") or "N/A",
+            pant_size=employee_data.get("talla_pantalon") or 28,
+            shoe_size=employee_data.get("talla_zapatos") or 38,
+            stratum=employee_data.get("estrato") or 2,
         )
         personal_info_list.append(personal_info)
 
-        # Contact Information
-        print("Personas a cargo:", employee_data.get("personas_a_cargo", 0))
-        print("Cedula:", employee_data.get("cedula", 0))
-        print("Localidad:", employee_data.get("localidad") or "No especificada")
-
+        print("identification", personal_info.identification)
         contact_info = ContactInformation(
             fixed_phone=employee_data.get("tel_fijo"),
-            cell_phone=employee_data.get("celular", 0),
+            cell_phone=employee_data.get("celular") or 0,
             email=employee_data.get("correo"),
             corporate_email=employee_data.get("correo_corporativo"),
             address=employee_data.get("direccion") or "No especificada",
@@ -239,11 +244,11 @@ def get_employees_from_db(request):
                 or employee_data.get("fecha_ingreso")
             ),
             health_provider=HealthProvider.objects.get_or_create(
-                name=employee_data.get("eps", "No especificada")
+                name=employee_data.get("eps") or "No especificada"
             )[0],
             legacy_health_provider=employee_data.get("cambio_eps_legado"),
             pension_fund=PensionFund.objects.get_or_create(
-                name=employee_data.get("pension", "No especificada")
+                name=employee_data.get("pension") or "No especificada"
             )[0],
             compensation_fund=CompensationFund.objects.get_or_create(
                 name=employee_data.get("caja_compensacion") or "No especificada"
@@ -251,12 +256,12 @@ def get_employees_from_db(request):
             saving_fund=SavingFund.objects.get_or_create(
                 name=employee_data.get("cesantias") or "No especificada"
             )[0],
-            payroll_account=employee_data.get("cuenta_nomina", 0),
+            payroll_account=employee_data.get("cuenta_nomina") or 0,
             bank=Bank.objects.get_or_create(
-                name=employee_data.get("banco", "BANCO CAJA SOCIAL")
+                name=employee_data.get("banco") or "BANCO CAJA SOCIAL"
             )[0],
             headquarter=Headquarter.objects.get_or_create(
-                name=employee_data.get("sede", "No especificada")
+                name=employee_data.get("sede") or "No especificada"
             )[0],
             job_title=JobTitle.objects.get_or_create(name=employee_data.get("cargo"))[
                 0
@@ -264,7 +269,7 @@ def get_employees_from_db(request):
             appointment_date=parse_date(employee_data.get("fecha_nombramiento")),
             legacy_appointment_date=employee_data.get("fecha_nombramiento_legado"),
             management=Management.objects.get_or_create(
-                name=employee_data.get("gerencia", "BANCO AGRARIO")
+                name=employee_data.get("gerencia") or "No especificada"
             )[0],
             campaign=Campaign.objects.get_or_create(
                 name=employee_data.get("campana_general")
@@ -273,15 +278,12 @@ def get_employees_from_db(request):
             contract_type=employee_data.get("tipo_contrato") or "OBRA O LABOR",
             entry_date=parse_date(employee_data.get("fecha_ingreso")),
             salary=employee_data.get("salario"),
-            transportation_allowance=employee_data.get("subsidio_transporte", 0),
+            transportation_allowance=employee_data.get("subsidio_transporte") or 0,
             remote_work=bool(employee_data.get("aplica_teletrabajo")),
             remote_work_application_date=parse_date(
                 employee_data.get("fecha_aplica_teletrabajo")
             ),
             windows_user=employee_data.get("usuario_windows"),
-            shirt_size=employee_data.get("talla_camisa"),
-            pant_size=employee_data.get("talla_pantalon"),
-            shoe_size=employee_data.get("talla_zapatos"),
         )
         employment_details_list.append(employment_details)
 
@@ -294,13 +296,19 @@ def get_employees_from_db(request):
         )
         termination_details_list.append(termination_details)
 
-    # Bulk create related models
-    PersonalInformation.objects.bulk_create(personal_info_list)
-    ContactInformation.objects.bulk_create(contact_info_list)
-    EmergencyContact.objects.bulk_create(emergency_contact_list)
-    Education.objects.bulk_create(education_list)
-    EmploymentDetails.objects.bulk_create(employment_details_list)
-    TerminationDetails.objects.bulk_create(termination_details_list)
+    # Can't bulk create related models because they have foreign keys
+    for personal_info in personal_info_list:
+        personal_info.save()
+    for contact_info in contact_info_list:
+        contact_info.save()
+    for emergency_contact in emergency_contact_list:
+        emergency_contact.save()
+    for education in education_list:
+        education.save()
+    for employment_details in employment_details_list:
+        employment_details.save()
+    for termination_details in termination_details_list:
+        termination_details.save()
 
     # Retrieve created records and link to Employee
     for i in range(len(personal_info_list)):
@@ -619,7 +627,6 @@ class EmployeeDetailView(DetailView):
         context["title"] = "Employee Detail"
         employee = self.get_object()
         context["fields"] = model_to_dict(employee)
-        print(context["fields"])
         return context
 
 
