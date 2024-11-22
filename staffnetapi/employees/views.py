@@ -54,8 +54,6 @@ def get_employees_from_db(request):
     Management.objects.all().delete()
     PensionFund.objects.all().delete()
     SavingFund.objects.all().delete()
-    print("Previous data cleared.")
-    print(PersonalInformation.objects.all())
 
     # Fetch employee data from API
     cookie_token = "7ca6b0de-2d43-4ab9-967b-01ffdabbb4d8"
@@ -207,7 +205,6 @@ def get_employees_from_db(request):
         )
         personal_info_list.append(personal_info)
 
-        print("identification", personal_info.identification)
         contact_info = ContactInformation(
             fixed_phone=employee_data.get("tel_fijo"),
             cell_phone=employee_data.get("celular") or 0,
