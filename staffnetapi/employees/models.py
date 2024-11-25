@@ -16,6 +16,7 @@ from .choices import (
     Rh,
     ShirtSize,
     TerminationReason,
+    Gender,
 )
 from .utilities import user_photo_path
 
@@ -47,6 +48,7 @@ class PersonalInformation(models.Model):
         unique=True,
         verbose_name="Identificación",
         validators=[MinValueValidator(10000)],
+        db_index=True,
     )
     last_name = UpperCharField(
         max_length=100, verbose_name="Apellidos", null=True, blank=True
@@ -65,7 +67,7 @@ class PersonalInformation(models.Model):
     expedition_date = models.DateField(verbose_name="Fecha de Expedición")
     gender = UpperCharField(
         max_length=1,
-        choices=(("M", "Masculino"), ("F", "Femenino")),
+        choices=Gender.choices,
         verbose_name="Género",
     )
     rh = UpperCharField(max_length=3, choices=Rh.choices, verbose_name="RH")
@@ -119,7 +121,9 @@ class ContactInformation(models.Model):
     cell_phone = UpperCharField(
         verbose_name="Celular", max_length=15, validators=[MinLengthValidator(10)]
     )
-    email = UpperEmailField(unique=True, verbose_name="Correo Electrónico", null=True)
+    email = UpperEmailField(
+        unique=True, verbose_name="Correo Electrónico", null=True, db_index=True
+    )
     corporate_email = UpperEmailField(
         unique=True,
         verbose_name="Correo Electrónico Corporativo",
@@ -167,10 +171,10 @@ class EmploymentDetails(models.Model):
     affiliation_date = models.DateField(verbose_name="Fecha de Afiliación")
     entry_date = models.DateField(verbose_name="Fecha de Ingreso")
     salary = models.DecimalField(
-        max_digits=65, decimal_places=2, verbose_name="Salario"
+        max_digits=12, decimal_places=2, verbose_name="Salario"
     )
     transportation_allowance = models.DecimalField(
-        max_digits=65, decimal_places=2, verbose_name="Auxilio de Transporte"
+        max_digits=12, decimal_places=2, verbose_name="Auxilio de Transporte"
     )
     remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
     remote_work_application_date = models.DateField(
@@ -265,6 +269,10 @@ class EmploymentDetails(models.Model):
                 "No se puede aplicar teletrabajo sin marcar la opción."
             )
 
+    def clean(self):
+        super().clean()
+        self.clean_remote_work_date()
+
 
 # Termination Details Model
 class TerminationDetails(models.Model):
@@ -323,36 +331,36 @@ class Employee(models.Model):
         verbose_name_plural = "Empleados"
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.identification})"
+        return f"{self.get_full_name()} ({self.personal_identification})"
 
     # Shortcut Properties
     @property
-    def identification(self):
+    def personal_identification(self):
         """Access the 'identification' field from 'PersonalInformation'."""
         return self.personal_info.identification
 
     @property
-    def first_name(self):
+    def personal_first_name(self):
         """Access the 'first_name' field from 'PersonalInformation'."""
         return self.personal_info.first_name
 
     @property
-    def last_name(self):
+    def personal_last_name(self):
         """Access the 'last_name' field from 'PersonalInformation'."""
         return self.personal_info.last_name
 
     @property
-    def email(self):
+    def contact_email(self):
         """Access the 'email' field from 'ContactInformation'."""
         return self.contact_info.email
 
     @property
-    def corporate_email(self):
+    def contact_corporate_email(self):
         """Access the 'corporate_email' field from 'ContactInformation'."""
         return self.contact_info.corporate_email
 
     def get_full_name(self) -> str:
         """Return the full name of the employee."""
-        if self.last_name:
-            return f"{self.first_name} {self.last_name}".title()
-        return self.first_name.title()
+        if self.personal_last_name:
+            return f"{self.personal_first_name} {self.personal_last_name}".title()
+        return self.personal_first_name.title()

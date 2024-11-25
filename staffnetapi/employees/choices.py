@@ -1,10 +1,12 @@
-# Reduce the size of py by moving the choices to a separate file
+# Reduce the size of model.py by moving the choices to a separate file
+
+import enum
 
 from django.db.models import TextChoices
 
 
 class TerminationReason(TextChoices):
-    LOW_REMUNERATION = "BAJA REMUNERACION", "Baja remuneración"
+    LOW_REMUNERATION = "BAJA REMUNERACIÓN", "Baja remuneración"
     CALAMITY_FAMILY = "CALAMIDAD FAMILIAR", "Calamidad familiar"
     CHANGE_ACTIVITY = "CAMBIO DE ACTIVIDAD", "Cambio de actividad"
     CONFLICTS_LABOR_RELATIONS = (
@@ -12,13 +14,13 @@ class TerminationReason(TextChoices):
         "Conflictos en relaciones laborales",
     )
     DISPLACEMENT = "DESPLAZAMIENTO", "Desplazamiento"
-    LABOR_STRESS = "ESTRES LABORAL", "Estrés laboral"
+    LABOR_STRESS = "ESTRÉS LABORAL", "Estrés laboral"
     LACK_TOOLS_PERFORM_JOB = (
         "FALTA DE HERRAMIENTAS PARA  DESEMPEÑAR LA LABOR",
         "Falta de herramientas para  desempeñar la labor",
     )
     LACK_INDUCTION_ENTERING = (
-        "FALTA DE INDUCCION AL INGRESAR",
+        "FALTA DE INDUCCIÓN AL INGRESAR",
         "Falta de inducción al ingresar",
     )
     LACK_RECOGNITION = "FALTA DE RECONOCIMIENTO", "Falta de reconocimiento"
@@ -44,27 +46,27 @@ class TerminationReason(TextChoices):
     OTHER = "OTRO", "Otro"
     PERSONAL_PROBLEMS = "PROBLEMAS PERSONALES", "Problemas personales"
     TERMINATION_CONTRACT_LEARNING = (
-        "TERMINACION DE CONTRATO APRENDIZAJE",
+        "TERMINACIÓN DE CONTRATO APRENDIZAJE",
         "Terminación de contrato aprendizaje",
     )
     TERMINATION_CONTRACT_JUST_CAUSE = (
-        "TERMINACION DE CONTRATO CON JUSTA CAUSA",
+        "TERMINACIÓN DE CONTRATO CON JUSTA CAUSA",
         "Terminación de contrato con justa causa",
     )
     TERMINATION_CONTRACT_PROBATION_PERIOD = (
-        "TERMINACION DE CONTRATO POR PERIODO DE PRUEBA",
+        "TERMINACIÓN DE CONTRATO POR PERIODO DE PRUEBA",
         "Terminación de contrato por periodo de prueba",
     )
     TERMINATION_CONTRACT_WITHOUT_JUST_CAUSE = (
-        "TERMINACION DE CONTRATO SIN JUSTA CAUSA",
+        "TERMINACIÓN DE CONTRATO SIN JUSTA CAUSA",
         "Terminación de contrato sin justa causa",
     )
     TERMINATION_ABANDONMENT_POSITION = (
-        "TERMINACION POR ABANDONO DE PUESTO",
+        "TERMINACIÓN POR ABANDONO DE PUESTO",
         "Terminación por abandono de puesto",
     )
     TERMINATION_WORK_CONTRACTED = (
-        "TERMINACION POR OBRA O LABOR CONTRATADA ",
+        "TERMINACIÓN POR OBRA O LABOR CONTRATADA ",
         "Terminación por obra o labor contratada ",
     )
 
@@ -121,18 +123,18 @@ class Rh(TextChoices):
 class EducationLevel(TextChoices):
     PRIMARY = "PRIMARIA", "Primaria"
     SECONDARY = "BACHILLER", "Bachiller"
-    TECHNICAL = "TECNICO", "Técnico"  # RH don't want special characters
-    TECHNOLOGICAL = "TECNOLOGO", "Tecnologo"
+    TECHNICAL = "TÉCNICO", "Técnico"
+    TECHNOLOGICAL = "TECNÓLOGO", "Tecnólogo"
     AUXILIARY = "AUXILIAR", "Auxiliar"
     UNIVERSITY = "UNIVERSITARIO", "Universitario"
     PROFESSIONAL = "PROFESIONAL", "Profesional"
-    SPECIALIZATION = "ESPECIALIZACION", "Especialización"
+    SPECIALIZATION = "ESPECIALIZACIÓN", "Especialización"
 
 
 class ContractType(TextChoices):
     INDEFINITE_TERM = "TERMINO INDEFINIDO", "Termino Indefinido"
     WORK = "OBRA O LABOR", "Obra o Labor"
-    SERVICE = "PRESTACION DE SERVICIOS", "Prestación de Servicios"
+    SERVICE = "PRESTACIÓN DE SERVICIOS", "Prestación de Servicios"
     LEARNING = "APRENDIZAJE", "Aprendizaje"
 
 
@@ -142,3 +144,8 @@ class DocumentType(TextChoices):
     TI = "TI", "Tarjeta de Identidad"
     PP = "PP", "Pasaporte"
     RC = "RC", "Registro Civil"
+
+
+class Gender(TextChoices):
+    MASCULINO = "MASCULINO", "Masculino"
+    FEMENINO = "FEMENINO", "Femenino"
