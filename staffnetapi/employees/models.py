@@ -12,11 +12,11 @@ from .choices import (
     ContractType,
     DocumentType,
     EducationLevel,
+    Gender,
     Relationship,
     Rh,
     ShirtSize,
     TerminationReason,
-    Gender,
 )
 from .utilities import user_photo_path
 
@@ -41,9 +41,7 @@ class UpperEmailField(models.EmailField):
 
 # Personal Information Model
 class PersonalInformation(models.Model):
-    photo = models.ImageField(
-        upload_to=user_photo_path, blank=True, verbose_name="Foto"
-    )
+    photo = models.ImageField(upload_to=user_photo_path, verbose_name="Foto", null=True)
     identification = models.PositiveIntegerField(
         unique=True,
         verbose_name="Identificación",
@@ -358,6 +356,11 @@ class Employee(models.Model):
     def contact_corporate_email(self):
         """Access the 'corporate_email' field from 'ContactInformation'."""
         return self.contact_info.corporate_email
+
+    @property
+    def employment_job_title(self):
+        """Access the 'job_title' field from 'EmploymentDetails'."""
+        return self.employment_details.job_title
 
     def get_full_name(self) -> str:
         """Return the full name of the employee."""

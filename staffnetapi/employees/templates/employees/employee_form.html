@@ -1,0 +1,105 @@
+{% extends 'employees/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">{{ view_type }} Employee</h1>
+    
+    {% if view_type == "Create" %}
+        <p class="mb-6 text-gray-600">Fill out the form below to create a new employee.</p>
+    {% else %}
+        <p class="mb-6 text-gray-600">Update the information for <strong>{{ employee.get_full_name }}</strong>.</p>
+    {% endif %}
+    
+    {% if form.errors %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <strong class="font-bold">Please correct the errors below:</strong>
+            <ul class="mt-2 list-disc list-inside">
+                {% for field, errors in form.errors.items %}
+                    <li><strong>{{ field }}:</strong> {{ errors|join:", " }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Información personal</h2>
+                {{ form.personal_info.as_p|safe }}
+            </div>
+        
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Detalles del empleado</h2>
+                {{ form.employment_details.as_p|safe }}
+            </div>
+        
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Contacto de emergencia</h2>
+                {{ form.emergency_contact.as_p|safe }}
+            </div>
+        
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Educación</h2>
+                {{ form.education.as_p|safe }}
+            </div>
+        
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Información de contacto</h2>
+                {{ form.contact_info.as_p|safe }}
+            </div>
+        
+            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
+                <h2 class="text-xl font-semibold mb-4">Terminación de contrato</h2>
+                {{ form.termination_details.as_p|safe }}
+            </div>
+        </div>
+        
+        <div class="mt-8 flex justify-end">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Save
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Custom styles for form elements */
+    form p {
+        @apply mb-6; /* Increased bottom margin */
+    }
+    form label {
+        @apply block text-gray-700 text-sm font-bold mb-2;
+    }
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="tel"],
+    form input[type="date"],
+    form select,
+    form textarea {
+        @apply shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-50;
+        /* Increased padding, added light background */
+    }
+    form input[type="checkbox"] {
+        @apply mr-2 leading-tight;
+    }
+    /* Add styles for focus state */
+    form input:focus,
+    form select:focus,
+    form textarea:focus {
+        @apply border-blue-500 bg-white;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formParagraphs = document.querySelectorAll('form p');
+        formParagraphs.forEach(p => {
+            const separator = document.createElement('div');
+            separator.className = 'border-t border-gray-200 my-4';
+            p.parentNode.insertBefore(separator, p.nextSibling);
+        });
+    });
+</script>
+{% endblock %}
+

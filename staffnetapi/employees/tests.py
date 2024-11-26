@@ -2,7 +2,6 @@ import os
 
 import ldap  # type: ignore
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -115,7 +114,7 @@ class EmployeeModelTest(TestCase):
             "address": "Calle 123",
             "neighborhood": "Barrio 123",
             "locality": locality,
-            "fixed_phone": "1234567",
+            "fixed_phone": "12345678",
             "cell_phone": "1234567890",
             "email": settings.DEFAULT_FROM_EMAIL,
             "corporate_email": "test@test.com",
@@ -152,7 +151,7 @@ class EmployeeModelTest(TestCase):
             "campaign": campaign,
             "business_area": "Development",
             "contract_type": "Indefinite",
-            "windows_user": "j",
+            "windows_user": "test.test",
         }
         self.termination_details = {
             "termination_date": "2021-01-01",
@@ -178,9 +177,9 @@ class EmployeeModelTest(TestCase):
         education = Education.objects.create(**self.education)
         employment_details = EmploymentDetails.objects.create(**self.employment_details)
         termination_details = TerminationDetails.objects.create(
-            **self
+            **self.termination_details
         )
-        employee = Employee.objects.create(
+        employee = Employee(
             personal_info=personal_info,
             contact_info=contact_info,
             emergency_contact=emergency_contact,
@@ -189,6 +188,8 @@ class EmployeeModelTest(TestCase):
             termination_details=termination_details,
             status=1,
         )
+        employee.full_clean()
+        employee.save()
         return employee
 
     def test_employee_str(self):
@@ -196,45 +197,116 @@ class EmployeeModelTest(TestCase):
         employee = self.create_employee()
         self.assertEqual(str(employee), "John Doe (123456789)")
 
-    def test_employee_save(self):
-        """Tests that the employee info is saved in uppercase."""
-        personal_info = PersonalInformation.objects.create(**self.personal_info)
-        contact_info = ContactInformation.objects.create(**self.contact_info)
-        emergency_contact = EmergencyContact.objects.create(**self.emergency_contact)
-        education = Education.objects.create(**self.education)
-        employment_details = EmploymentDetails.objects.create(**self.employment_details)
-        termination_details = TerminationDetails.objects.create(
-            **self.termination_details
+    def test_employee_creation(self):
+        """Tests that an employee is created correctly."""
+        employee = self.client.post(
+            reverse("create_employee"), data=self.employee_data
         )
-        employee = Employee.objects.create(
-            personal_info=personal_info,
-            contact_info=contact_info,
-            emergency_contact=emergency_contact,
-            education=education,
-            employment_details=employment_details,
-            termination_details=termination_details,
-            status=1,
-        )
-        self.assertEqual(employee.first_name, "JOHN")
-        self.assertEqual(employee.last_name, "DOE")
-        self.assertEqual(employee.identification, 123456789)
-        self.assertEqual(employee.email, self.contact_info["email"].upper())
+        self.assertEqual(employee.personal_first_name, "JOHN")
+        self.assertEqual(employee.personal_last_name, "DOE")
+        self.assertEqual(employee.personal_identification, 123456789)
+        self.assertEqual(employee.contact_email, self.contact_info["email"].upper())
         self.assertEqual(
-            employee.corporate_email, self.contact_info["corporate_email"].upper()
+            employee.contact_corporate_email,
+            self.contact_info["corporate_email"].upper(),
         )
         self.assertEqual(employee.status, 1)
-        self.assertIsNone(employee.personal_info.photo)
+        # Personal Information Check
+        self.assertFalse(employee.personal_info.photo)
         self.assertEqual(employee.personal_info.identification, 123456789)
         self.assertEqual(employee.personal_info.last_name, "DOE")
         self.assertEqual(employee.personal_info.first_name, "JOHN")
         self.assertEqual(employee.personal_info.document_type, "CC")
         self.assertEqual(employee.personal_info.birth_date, "1990-01-01")
         self.assertEqual(employee.personal_info.expedition_place, "BOGOTÁ")
-        self.assertEqual(employee.contact_info, contact_info)
-        self.assertEqual(employee.emergency_contact, emergency_contact)
-        self.assertEqual(employee.education, education)
-        self.assertEqual(employee.employment_details, employment_details)
-        self.assertEqual(employee.termination_details, termination_details)
+        self.assertEqual(employee.personal_info.expedition_date, "2020-01-01")
+        self.assertEqual(employee.personal_info.gender, "M")
+        self.assertEqual(employee.personal_info.rh, "O+")
+        self.assertEqual(employee.personal_info.civil_status, "S")
+        self.assertEqual(employee.personal_info.sons, 0)
+        self.assertEqual(employee.personal_info.responsible_persons, 0)
+        self.assertEqual(employee.personal_info.stratum, 3)
+        self.assertEqual(employee.personal_info.shirt_size, "M")
+        self.assertEqual(employee.personal_info.pant_size, "32")
+        self.assertEqual(employee.personal_info.shoe_size, 9)
+        # Contact Information Check
+        self.assertEqual(employee.contact_info.address, "CALLE 123")
+        self.assertEqual(employee.contact_info.neighborhood, "BARRIO 123")
+        self.assertEqual(employee.contact_info.locality, self.contact_info["locality"])
+        self.assertEqual(employee.contact_info.fixed_phone, "12345678")
+        self.assertEqual(employee.contact_info.cell_phone, "1234567890")
+        self.assertEqual(
+            employee.contact_info.email, self.contact_info["email"].upper()
+        )
+        self.assertEqual(
+            employee.contact_info.corporate_email,
+            self.contact_info["corporate_email"].upper(),
+        )
+        # Emergency Contact Check
+        self.assertEqual(employee.emergency_contact.name, "JANE DOE")
+        self.assertEqual(employee.emergency_contact.relationship, "MOTHER")
+        self.assertEqual(employee.emergency_contact.phone, "1234567890")
+        # Education Check
+        self.assertEqual(employee.education.education_level, "PROFESSIONAL")
+        self.assertEqual(employee.education.title, "ENGINEER")
+        self.assertFalse(employee.education.ongoing_studies)
+        # Employment Details Check
+        self.assertEqual(employee.employment_details.affiliation_date, "2021-01-01")
+        self.assertEqual(employee.employment_details.entry_date, "2021-01-01")
+        self.assertEqual(employee.employment_details.salary, 1000000)
+        self.assertEqual(employee.employment_details.transportation_allowance, 100000)
+        self.assertTrue(employee.employment_details.remote_work)
+        self.assertEqual(
+            employee.employment_details.remote_work_application_date, "2021-01-01"
+        )
+        self.assertEqual(employee.employment_details.payroll_account, "123456789")
+        self.assertEqual(
+            employee.employment_details.bank, self.employment_details["bank"]
+        )
+        self.assertEqual(
+            employee.employment_details.health_provider,
+            self.employment_details["health_provider"],
+        )
+        self.assertEqual(
+            employee.employment_details.legacy_health_provider,
+            self.employment_details["legacy_health_provider"],
+        )
+        self.assertEqual(
+            employee.employment_details.pension_fund,
+            self.employment_details["pension_fund"],
+        )
+        self.assertEqual(
+            employee.employment_details.compensation_fund,
+            self.employment_details["compensation_fund"],
+        )
+        self.assertEqual(
+            employee.employment_details.saving_fund,
+            self.employment_details["saving_fund"],
+        )
+        self.assertEqual(
+            employee.employment_details.headquarter,
+            self.employment_details["headquarter"],
+        )
+        self.assertEqual(
+            employee.employment_details.job_title, self.employment_details["job_title"]
+        )
+        self.assertEqual(employee.employment_details.appointment_date, "2021-01-01")
+        self.assertEqual(
+            employee.employment_details.legacy_appointment_date,
+            self.employment_details["legacy_appointment_date"],
+        )
+        self.assertEqual(
+            employee.employment_details.management,
+            self.employment_details["management"],
+        )
+        self.assertEqual(
+            employee.employment_details.campaign, self.employment_details["campaign"]
+        )
+        self.assertEqual(employee.employment_details.business_area, "DEVELOPMENT")
+        self.assertEqual(employee.employment_details.contract_type, "INDEFINITE")
+        self.assertEqual(employee.employment_details.windows_user, "TEST.TEST")
+        # Termination Details Check
+        self.assertEqual(employee.termination_details.termination_date, "2021-01-01")
 
     # def test_create_all(self):
     #     """Tests that all the employee fields are created."""

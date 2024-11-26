@@ -7,10 +7,15 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView, ListView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from administration.models import *
-from employees.forms import EmployeeForm
+from employees.forms import (
+    ContactInformationForm,
+    EmployeeForm,
+    PersonalInformationForm,
+)
 
 from .models import (
     ContactInformation,
@@ -584,31 +589,28 @@ class EmployeeListView(ListView):
     """Employee list view."""
 
     model = Employee
-    template_name = "employees/employees-list.html"
     context_object_name = "employees"
     paginate_by = 11
 
     def get_queryset(self):
         """Get the queryset."""
         queryset = Employee.objects.only(
-            "first_name", "last_name", "identification", "job_title", "status"
-        ).order_by("first_name", "last_name")
+            "personal_info__first_name",
+            "personal_info__last_name",
+            "personal_info__identification",
+            "employment_details__job_title",
+            "status",
+        ).order_by("personal_info__first_name", "personal_info__last_name")
         query = self.request.GET.get("q")
         if query:
             # Filter the queryset based on the search query
             queryset = queryset.filter(
-                Q(first_name__icontains=query)
-                | Q(last_name__icontains=query)
-                | Q(identification__icontains=query)
-                | Q(job_title__name__icontains=query)
+                Q(personal_info__first_name__icontains=query)
+                | Q(personal_info__last_name__icontains=query)
+                | Q(personal_info__identification__icontains=query)
+                | Q(employment_details__job_title__name__icontains=query)
             )
         return queryset
-
-    def get_context_data(self, **kwargs):
-        """Get the context data."""
-        context = super().get_context_data(**kwargs)
-        context["title"] = "Employees"
-        return context
 
 
 class EmployeeDetailView(DetailView):
@@ -640,3 +642,27 @@ def employee_update_view(request, employee_id):
     return render(
         request, "employees/employee_update.html", {"form": form, "employee": employee}
     )
+
+
+class EmployeeCreateView(CreateView):
+    model = Employee
+    form_class = EmployeeForm
+    success_url = reverse_lazy("employee_list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["view_type"] = "Create"
+        context["button_label"] = "Save"
+        return context
+
+
+class EmployeeUpdateView(UpdateView):
+    model = Employee
+    form_class = EmployeeForm
+    success_url = reverse_lazy("employee_list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["view_type"] = "Update"
+        context["button_label"] = "Update"
+        return context

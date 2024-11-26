@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Employee Management System{% endblock %}</title>
+    <title>{% block title %}StaffNet Django{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,11 +26,11 @@
         <nav class="container mx-auto px-6 py-3">
             <div class="flex justify-between items-center">
                 <div class="text-xl font-semibold text-gray-700">
-                    <a href="{% url 'employees-list' %}">Employee Management</a>
+                    <a href="{% url 'employees-list' %}">StaffNet</a>
                 </div>
                 <div class="space-x-4">
-                    <a href="{% url 'employees-list' %}" class="text-gray-600 hover:text-gray-900">Employees</a>
-                    <!-- Add more navigation items as needed -->
+                    <a href="{% url 'employees-list' %}" class="text-gray-600 hover:text-gray-900">Empleados</a>
+                    <a href="{% url 'employee-create' %}" class="text-gray-600 hover:text-gray-900">Ingresar empleado</a>
                 </div>
             </div>
         </nav>

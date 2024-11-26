@@ -147,5 +147,5 @@ class DocumentType(TextChoices):
 
 
 class Gender(TextChoices):
-    MASCULINO = "MASCULINO", "Masculino"
-    FEMENINO = "FEMENINO", "Femenino"
+    MASCULINO = "M", "Masculino"
+    FEMENINO = "F", "Femenino"
