@@ -174,7 +174,6 @@ class EmploymentDetails(models.Model):
     transportation_allowance = models.DecimalField(
         max_digits=12, decimal_places=2, verbose_name="Auxilio de Transporte"
     )
-    remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
     remote_work_application_date = models.DateField(
         verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
     )
@@ -254,6 +253,7 @@ class EmploymentDetails(models.Model):
     windows_user = UpperCharField(
         max_length=50, verbose_name="Usuario de Windows", null=True, blank=True
     )
+    remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
 
     class Meta:
         verbose_name = "Detalles Laborales"

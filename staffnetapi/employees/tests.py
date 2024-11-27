@@ -199,9 +199,7 @@ class EmployeeModelTest(TestCase):
 
     def test_employee_creation(self):
         """Tests that an employee is created correctly."""
-        employee = self.client.post(
-            reverse("create_employee"), data=self.employee_data
-        )
+        employee = self.client.post(reverse("employee-create"), data=self.employee_data)
         self.assertEqual(employee.personal_first_name, "JOHN")
         self.assertEqual(employee.personal_last_name, "DOE")
         self.assertEqual(employee.personal_identification, 123456789)

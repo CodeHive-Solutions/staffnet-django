@@ -1,105 +1,176 @@
 {% extends 'employees/base.html' %}
+{% load static %}
 
-{% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">{{ view_type }} Employee</h1>
-    
-    {% if view_type == "Create" %}
-        <p class="mb-6 text-gray-600">Fill out the form below to create a new employee.</p>
-    {% else %}
-        <p class="mb-6 text-gray-600">Update the information for <strong>{{ employee.get_full_name }}</strong>.</p>
-    {% endif %}
-    
-    {% if form.errors %}
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-            <strong class="font-bold">Please correct the errors below:</strong>
-            <ul class="mt-2 list-disc list-inside">
-                {% for field, errors in form.errors.items %}
-                    <li><strong>{{ field }}:</strong> {{ errors|join:", " }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-    
-    <form method="post" enctype="multipart/form-data" class="space-y-6">
-        {% csrf_token %}
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Información personal</h2>
-                {{ form.personal_info.as_p|safe }}
-            </div>
-        
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Detalles del empleado</h2>
-                {{ form.employment_details.as_p|safe }}
-            </div>
-        
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Contacto de emergencia</h2>
-                {{ form.emergency_contact.as_p|safe }}
-            </div>
-        
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Educación</h2>
-                {{ form.education.as_p|safe }}
-            </div>
-        
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Información de contacto</h2>
-                {{ form.contact_info.as_p|safe }}
-            </div>
-        
-            <div class="bg-white shadow-md rounded-lg p-8"> <!-- Increased padding -->
-                <h2 class="text-xl font-semibold mb-4">Terminación de contrato</h2>
-                {{ form.termination_details.as_p|safe }}
-            </div>
-        </div>
-        
-        <div class="mt-8 flex justify-end">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Save
-            </button>
-        </div>
-    </form>
-</div>
-
-<style>
-    /* Custom styles for form elements */
-    form p {
-        @apply mb-6; /* Increased bottom margin */
-    }
-    form label {
-        @apply block text-gray-700 text-sm font-bold mb-2;
-    }
-    form input[type="text"],
-    form input[type="email"],
-    form input[type="tel"],
-    form input[type="date"],
-    form select,
-    form textarea {
-        @apply shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-50;
-        /* Increased padding, added light background */
-    }
-    form input[type="checkbox"] {
-        @apply mr-2 leading-tight;
-    }
-    /* Add styles for focus state */
-    form input:focus,
-    form select:focus,
-    form textarea:focus {
-        @apply border-blue-500 bg-white;
-    }
-</style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formParagraphs = document.querySelectorAll('form p');
-        formParagraphs.forEach(p => {
-            const separator = document.createElement('div');
-            separator.className = 'border-t border-gray-200 my-4';
-            p.parentNode.insertBefore(separator, p.nextSibling);
-        });
-    });
-</script>
+{% block title %}
+  {{ view_type }} Empleado
 {% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/employee_form.css' %}" />
+  <script src="{% static 'js/employee_form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">{{ view_type }} Employee</h1>
+
+    {% if view_type == 'Create' %}
+      <p class="mb-6 text-gray-600">Fill out the form below to create a new employee.</p>
+    {% else %}
+      <p class="mb-6 text-gray-600">
+        Update the information for <strong>{{ employee.get_full_name }}</strong>.
+      </p>
+    {% endif %}
+
+    {% if form.errors %}
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+        <strong class="font-bold">Please correct the errors below:</strong>
+        <ul class="mt-2 list-disc list-inside">
+          {% for field, errors in form.errors.items %}
+            <li>
+              <strong>{{ field }}:</strong> {{ errors|join:', ' }}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-8">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg flex flex-col h-full">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Información personal</h2>
+          <!-- Image Block -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-1 items-center">
+            <div class="p-6 w-full flex justify-center items-center">
+              <img id="profile-picture-preview" src="{% static 'images/default-avatar.png' %}" alt="Profile Picture" class="rounded-full shadow-md w-32 h-32 border border-gray-300 object-cover" />
+            </div>
+            <div>
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="id_personal_info-photo">Profile Picture</label>
+              <div class="relative">
+                <input type="file" id="id_personal_info-photo" name="personal_info-photo" class="hidden" accept="image/*" />
+                <label for="id_personal_info-photo" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>Choose File
+                </label>
+                <span id="file-name" class="ml-3 text-gray-600"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Block -->
+          <div style="width: 100%" class="flex-grow">
+            <div class="space-y-4">
+              {{ form.personal_info.non_field_errors }}
+              {% for field in form.personal_info %}
+                {% if field.name != 'photo' %}
+                  <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <div class="mt-6">
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="id_personal_info-photo">Profile Picture</label>
+              <div class="relative">
+                <input type="file" id="id_personal_info-photo" name="personal_info-photo" class="hidden" accept="image/*" />
+                <label for="id_personal_info-photo" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>Choose File
+                </label>
+                <span id="file-name" class="ml-3 text-gray-600"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Detalles del empleado</h2>
+          <div class="space-y-4">
+            {% for field in form.employment_details %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Contacto de emergencia</h2>
+          <div class="space-y-4">
+            {% for field in form.emergency_contact %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Educación</h2>
+          <div class="space-y-4">
+            {% for field in form.education %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Información de contacto</h2>
+          <div class="space-y-4">
+            {% for field in form.contact_info %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Terminación de contrato</h2>
+          <div class="space-y-4">
+            {% for field in form.termination_details %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 flex justify-end gap-4">
+        <a href="{% url 'employees-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</a>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
