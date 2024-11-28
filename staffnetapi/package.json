@@ -1,0 +1,11 @@
+{
+    "devDependencies": {
+        "tailwindcss": "^3.4.15"
+    },
+    "scripts": {
+        "build": "npx tailwindcss -i ./static/css/tailwind_base.css -o ./static/css/tailwind_mini.css --minify && cp node_modules/flowbite/dist/flowbite.min.js static/js/"
+    },
+    "dependencies": {
+        "flowbite": "^2.5.2"
+    }
+}

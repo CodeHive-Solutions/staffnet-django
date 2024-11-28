@@ -43,16 +43,16 @@
           <!-- Image Block -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-1 items-center">
             <div class="p-6 w-full flex justify-center items-center">
-              <img id="profile-picture-preview" src="{% static 'images/default-avatar.png' %}" alt="Profile Picture" class="rounded-full shadow-md w-32 h-32 border border-gray-300 object-cover" />
+              <img id="profile-picture-preview" src="{% static 'images/default-avatar.webp' %}" alt="Profile Picture" class="rounded-full shadow-md w-32 h-32 border border-gray-300 object-cover" />
             </div>
             <div>
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="id_personal_info-photo">Profile Picture</label>
+              <label class="block text-gray-700 text-base font-bold mb-2" for="id_personal_info-photo">Foto de perfil</label>
               <div class="relative">
                 <input type="file" id="id_personal_info-photo" name="personal_info-photo" class="hidden" accept="image/*" />
                 <label for="id_personal_info-photo" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>Choose File
+                  </svg>Elegir archivo
                 </label>
                 <span id="file-name" class="ml-3 text-gray-600"></span>
               </div>
@@ -65,6 +65,127 @@
               {{ form.personal_info.non_field_errors }}
               {% for field in form.personal_info %}
                 {% if field.name != 'photo' %}
+                  {% if field.field.widget.input_type == 'checkbox' %}
+                    <div class="form-group flex items-center">
+                      {{ field }}
+                      <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                    </div>
+                  {% else %}
+                    <div class="form-group">
+                      <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                      {{ field }}
+                      {% if field.errors %}
+                        <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Detalles del empleado</h2>
+          <div class="space-y-4">
+            {% for field in form.employment_details %}
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-group flex items-center">
+                  {{ field }}
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                </div>
+              {% elif '(LEGADO)' in field.label and not field.value %}
+                {% comment %}Do nothing{% endcomment %}
+              {% else %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Contacto de emergencia</h2>
+          <div class="space-y-4">
+            {% for field in form.emergency_contact %}
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-group flex items-center">
+                  {{ field }}
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                </div>
+              {% else %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Educación</h2>
+          <div class="space-y-4">
+            {% for field in form.education %}
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-group flex items-center">
+                  {{ field }}
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                </div>
+              {% else %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800">Información de contacto</h2>
+          <div class="space-y-4">
+            {% for field in form.contact_info %}
+              {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-group flex items-center">
+                  {{ field }}
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                </div>
+              {% else %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if view_type == 'Update' %}
+          <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">Terminación de contrato</h2>
+            <div class="space-y-4">
+              {% for field in form.termination_details %}
+                {% if field.field.widget.input_type == 'checkbox' %}
+                  <div class="form-group flex items-center">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
+                  </div>
+                {% else %}
                   <div class="form-group">
                     <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                     {{ field }}
@@ -75,101 +196,13 @@
                 {% endif %}
               {% endfor %}
             </div>
-
-            <div class="mt-6">
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="id_personal_info-photo">Profile Picture</label>
-              <div class="relative">
-                <input type="file" id="id_personal_info-photo" name="personal_info-photo" class="hidden" accept="image/*" />
-                <label for="id_personal_info-photo" class="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>Choose File
-                </label>
-                <span id="file-name" class="ml-3 text-gray-600"></span>
-              </div>
-            </div>
           </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Detalles del empleado</h2>
-          <div class="space-y-4">
-            {% for field in form.employment_details %}
-              <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Contacto de emergencia</h2>
-          <div class="space-y-4">
-            {% for field in form.emergency_contact %}
-              <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Educación</h2>
-          <div class="space-y-4">
-            {% for field in form.education %}
-              <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Información de contacto</h2>
-          <div class="space-y-4">
-            {% for field in form.contact_info %}
-              <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Terminación de contrato</h2>
-          <div class="space-y-4">
-            {% for field in form.termination_details %}
-              <div class="form-group">
-                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                  <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
+        {% endif %}
       </div>
 
       <div class="mt-8 flex justify-end gap-4">
-        <a href="{% url 'employees-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</a>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Save</button>
+        <a href="{% url 'employees-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancelar</a>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Guardar</button>
       </div>
     </form>
   </div>

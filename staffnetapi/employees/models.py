@@ -1,10 +1,14 @@
+from io import BytesIO
+
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.core.validators import (
     MaxValueValidator,
     MinLengthValidator,
     MinValueValidator,
 )
 from django.db import models
+from PIL import Image
 
 from .choices import (
     BusinessArea,
@@ -68,9 +72,11 @@ class PersonalInformation(models.Model):
         choices=Gender.choices,
         verbose_name="Género",
     )
-    rh = UpperCharField(max_length=3, choices=Rh.choices, verbose_name="RH")
+    rh = UpperCharField(
+        max_length=3, choices=Rh.choices, verbose_name="RH", default=Rh.O_POSITIVE
+    )
     civil_status = UpperCharField(
-        max_length=25, choices=CivilStatus.choices, verbose_name="Estado Civil"
+        max_length=25, choices=CivilStatus.choices, verbose_name="Estado Civil", default=CivilStatus.SINGLE
     )
     sons = models.PositiveIntegerField(
         verbose_name="Número de Hijos", validators=[MinValueValidator(0)]
@@ -97,6 +103,33 @@ class PersonalInformation(models.Model):
     class Meta:
         verbose_name = "Información Personal"
         verbose_name_plural = "Informaciones Personales"
+
+    def save(self, *args, **kwargs):
+        # Custom logic for setting the image path based on the name field
+        if self.photo:
+            if self.pk:
+                # Get the current instance from the database
+                current_instance = PersonalInformation.objects.get(pk=self.pk)
+                # Check if the image has changed
+                if current_instance.photo != self.photo:
+                    # Delete the old image
+                    current_instance.photo.delete(save=False)
+            # Open the uploaded image
+            image = Image.open(self.photo)
+            # Convert image to RGB mode if it's not (required for WebP conversion)
+            if image.mode in ("RGBA", "P"):
+                image = image.convert("RGB")
+            # Save the image to a BytesIO buffer as WebP format
+            buffer = BytesIO()
+            image.save(buffer, format="WEBP")
+            # Replace the original image with the WebP image
+            self.photo.save(
+                f"{self.identification}.webp",
+                ContentFile(buffer.getvalue()),
+                save=False,
+            )
+            self.photo.name = f"employees/photos/{self.identification}.webp"
+        super().save(*args, **kwargs)
 
 
 # Contact Information Model
