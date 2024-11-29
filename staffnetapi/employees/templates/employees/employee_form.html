@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ view_type }} Empleado
+  {{ view_type }} Employee
 {% endblock %}
 
 {% block extra_head %}
@@ -12,13 +12,12 @@
 
 {% block content %}
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">{{ view_type }} Employee</h1>
-
     {% if view_type == 'Create' %}
-      <p class="mb-6 text-gray-600">Fill out the form below to create a new employee.</p>
+      <h1 class="text-3xl font-bold mb-6">Crear Empleado</h1>
+      <p class="mb-6 text-gray-600">Complete la información para crear un nuevo empleado.</p>
     {% else %}
       <p class="mb-6 text-gray-600">
-        Update the information for <strong>{{ employee.get_full_name }}</strong>.
+        Aquí puedes actualizar la información de <strong>{{ employee.full_name }}</strong>.
       </p>
     {% endif %}
 
@@ -54,7 +53,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>Elegir archivo
                 </label>
-                <span id="file-name" class="ml-3 text-gray-600"></span>
               </div>
             </div>
           </div>
@@ -206,4 +204,28 @@
       </div>
     </form>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      function formatCurrency(event) {
+        const salary = event.target.value
+        event.target.value = new Intl.NumberFormat('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 0
+        }).format(salary)
+      }
+      function restrictInput(event) {
+        const salary = event.target.value
+        event.target.value = salary.replace(/[^0-9]/g, '')
+      }
+    
+      const salaryInput = document.getElementById('id_employment_details-salary')
+      const transportAllowanceInput = document.getElementById('id_employment_details-transportation_allowance')
+      salaryInput.addEventListener('change', formatCurrency)
+      salaryInput.addEventListener('input', restrictInput)
+      transportAllowanceInput.addEventListener('change', formatCurrency)
+      transportAllowanceInput.addEventListener('input', restrictInput)
+    })
+  </script>
 {% endblock %}

@@ -110,6 +110,9 @@ class EmployeeModelTest(TestCase):
             "pant_size": "32",
             "shoe_size": 9,
         }
+        self.personal_info_input = {
+            "" + key for key, value in self.personal_info.items()
+        }
         self.contact_info = {
             "address": "Calle 123",
             "neighborhood": "Barrio 123",
@@ -199,7 +202,8 @@ class EmployeeModelTest(TestCase):
 
     def test_employee_creation(self):
         """Tests that an employee is created correctly."""
-        employee = self.client.post(reverse("employee-create"), data=self.employee_data)
+        response = self.client.post(reverse("employee-create"), data=self.employee_data)
+        employee = Employee.objects.get(personal_info__identification=123456789)
         self.assertEqual(employee.personal_first_name, "JOHN")
         self.assertEqual(employee.personal_last_name, "DOE")
         self.assertEqual(employee.personal_identification, 123456789)

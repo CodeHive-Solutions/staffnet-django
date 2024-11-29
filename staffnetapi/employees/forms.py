@@ -100,6 +100,9 @@ class EmploymentDetailsForm(forms.ModelForm):
         model = EmploymentDetails
         fields = "__all__"
         widgets = {
+            # Format salary to COP
+            "salary": forms.TextInput(),
+            "transportation_allowance": forms.TextInput(),
             "affiliation_date": forms.DateInput(attrs={**calendar_attrs}),
             "entry_date": forms.DateInput(attrs={**calendar_attrs}),
             "remote_work_application_date": forms.DateInput(attrs={**calendar_attrs}),
