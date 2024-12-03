@@ -76,7 +76,10 @@ class PersonalInformation(models.Model):
         max_length=3, choices=Rh.choices, verbose_name="RH", default=Rh.O_POSITIVE
     )
     civil_status = UpperCharField(
-        max_length=25, choices=CivilStatus.choices, verbose_name="Estado Civil", default=CivilStatus.SINGLE
+        max_length=25,
+        choices=CivilStatus.choices,
+        verbose_name="Estado Civil",
+        default=CivilStatus.SINGLE,
     )
     sons = models.PositiveIntegerField(
         verbose_name="Número de Hijos", validators=[MinValueValidator(0)]
@@ -353,7 +356,11 @@ class Employee(models.Model):
         EmploymentDetails, on_delete=models.CASCADE, related_name="employee"
     )
     termination_details = models.OneToOneField(
-        TerminationDetails, on_delete=models.CASCADE, related_name="employee"
+        TerminationDetails,
+        on_delete=models.CASCADE,
+        related_name="employee",
+        null=True,
+        blank=True,
     )
     status = models.BooleanField(default=True, verbose_name="Activo")
 

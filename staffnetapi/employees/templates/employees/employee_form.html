@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ view_type }} Employee
+  {{ view_type }} Empleado
 {% endblock %}
 
 {% block extra_head %}
@@ -12,8 +12,8 @@
 
 {% block content %}
   <div class="container mx-auto px-4 py-8">
-    {% if view_type == 'Create' %}
-      <h1 class="text-3xl font-bold mb-6">Crear Empleado</h1>
+    <h1 class="text-3xl font-bold mb-6">{{ view_type }} Empleado</h1>
+    {% if view_type == 'Crear' %}
       <p class="mb-6 text-gray-600">Complete la información para crear un nuevo empleado.</p>
     {% else %}
       <p class="mb-6 text-gray-600">

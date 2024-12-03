@@ -3,6 +3,7 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
@@ -651,9 +652,42 @@ class EmployeeCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["view_type"] = "Create"
+        context["view_type"] = "Crear"
         context["button_label"] = "Save"
         return context
+
+    def form_valid(self, form):
+        # Use a transaction to ensure atomicity
+        with transaction.atomic():
+            # Save related models first
+            personal_info = form.cleaned_data.get("personal_info")
+            contact_info = form.cleaned_data.get("contact_info")
+            emergency_contact = form.cleaned_data.get("emergency_contact")
+            education = form.cleaned_data.get("education")
+            employment_details = form.cleaned_data.get("employment_details")
+
+            # Save the related instances
+            if personal_info:
+                personal_info.save()
+            if contact_info:
+                contact_info.save()
+            if emergency_contact:
+                emergency_contact.save()
+            if education:
+                education.save()
+            if employment_details:
+                employment_details.save()
+
+            # Now save the Employee instance with the related objects
+            Employee.objects.create(
+                personal_info=personal_info,
+                contact_info=contact_info,
+                emergency_contact=emergency_contact,
+                education=education,
+                employment_details=employment_details,
+            )
+
+        return super().form_valid(form)
 
 
 class EmployeeUpdateView(UpdateView):
