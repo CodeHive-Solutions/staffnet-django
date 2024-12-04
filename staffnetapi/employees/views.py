@@ -12,21 +12,12 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from administration.models import *
-from employees.forms import (
-    ContactInformationForm,
-    EmployeeForm,
-    PersonalInformationForm,
-)
+from employees.forms import (ContactInformationForm, EmployeeForm,
+                             PersonalInformationForm)
 
-from .models import (
-    ContactInformation,
-    Education,
-    EmergencyContact,
-    Employee,
-    EmploymentDetails,
-    PersonalInformation,
-    TerminationDetails,
-)
+from .models import (ContactInformation, Education, EmergencyContact, Employee,
+                     EmploymentDetails, PersonalInformation,
+                     TerminationDetails)
 
 
 def parse_date(date_str):
@@ -665,6 +656,7 @@ class EmployeeCreateView(CreateView):
             emergency_contact = form.cleaned_data.get("emergency_contact")
             education = form.cleaned_data.get("education")
             employment_details = form.cleaned_data.get("employment_details")
+            print(personal_info)
 
             # Save the related instances
             if personal_info:
