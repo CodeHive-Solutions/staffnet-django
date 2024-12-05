@@ -45,7 +45,7 @@ class UpperEmailField(models.EmailField):
 
 # Personal Information Model
 class PersonalInformation(models.Model):
-    photo = models.ImageField(upload_to=user_photo_path, verbose_name="Foto", null=True)
+    photo = models.ImageField(upload_to=user_photo_path, verbose_name="Foto", null=True, blank=True)
     identification = models.PositiveIntegerField(
         unique=True,
         verbose_name="Identificación",

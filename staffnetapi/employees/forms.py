@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django import forms
+from django.forms import modelformset_factory
 from django.forms.models import inlineformset_factory
 
 from .models import (
@@ -153,7 +154,14 @@ class EmployeeForm(forms.ModelForm):
         # fields = "__all__"
 
     def clean(self):
+        personal_info = PersonalInformationForm(self.data)
+        if not personal_info.is_valid():
+            for field, errors in personal_info.errors.items():
+                for error in errors:
+                    print(f"Error in {field}: {error}")
+                    self.add_error(field, error)
         cleaned_data = super().clean()
+        # print(self.emergency_contact.cleaned_data)
         termination_details = cleaned_data.get("termination_details")
         status = cleaned_data.get("status")
 
@@ -163,114 +171,40 @@ class EmployeeForm(forms.ModelForm):
             )
         return cleaned_data
 
-    # def save(self, commit=True):
-    #     # Save the parent model (Employee)
-    #     employee = super().save(commit=False)
-    #     if commit:
-    #         employee.save()
+    def save(self, commit=True):
+        print("Saving employee")
+        super().save(commit=commit)
+        # personal_info = self.personal_info.save(commit=False)
+        # contact_info = self.contact_info.save(commit=False)
+        # emergency_contact = self.emergency_contact.save(commit=False)
+        # education = self.education.save(commit=False)
+        # employment_details = self.employment_details.save(commit=False)
+        # termination_details = self.termination_details.save(commit=False)
 
-    #     # Save related forms
-    #     self.personal_info.instance = employee
-    #     self.personal_info.save()
+        # employee = super().save(commit=False)
 
-    #     self.contact_info.instance = employee
-    #     self.contact_info.save()
+        # personal_info.save()
+        # contact_info.save()
+        # emergency_contact.save()
+        # education.save()
+        # employment_details.save()
+        # termination_details.save()
 
-    #     self.emergency_contact.instance = employee
-    #     self.emergency_contact.save()
+        # employee.personal_info = personal_info
+        # employee.contact_info = contact_info
+        # employee.emergency_contact = emergency_contact
+        # employee.education = education
+        # employee.employment_details = employment_details
+        # employee.termination_details = termination_details
 
-    #     self.education.instance = employee
-    #     self.education.save()
+        # if commit:
+        #     employee.save()
 
-    #     self.employment_details.instance = employee
-    #     self.employment_details.save()
+        # return employee
 
-    #     return employee
 
-    # def is_valid(self):
-    #     # Check if the main form and all sub-forms are valid
-    #     return super().is_valid() and all(
-    #         form.is_valid()
-    #         for form in [
-    #             self.personal_info,
-    #             self.contact_info,
-    #             self.emergency_contact,
-    #             self.education,
-    #             self.employment_details,
-    #             self.termination_details,
-    #         ]
-    #     )
-
-    # def full_clean(self) -> None:
-    #     super().full_clean()
-    #     if not self.personal_info.is_valid():
-    #         self.errors.update(
-    #             {f"personal_info__{k}": v for k, v in self.personal_info.errors.items()}
-    #         )
-    #     if not self.contact_info.is_valid():
-    #         self.errors.update(
-    #             {f"contact_info__{k}": v for k, v in self.contact_info.errors.items()}
-    #         )
-    #     if not self.emergency_contact.is_valid():
-    #         self.errors.update(
-    #             {
-    #                 f"emergency_contact__{k}": v
-    #                 for k, v in self.emergency_contact.errors.items()
-    #             }
-    #         )
-    #     if not self.education.is_valid():
-    #         self.errors.update(
-    #             {f"education__{k}": v for k, v in self.education.errors.items()}
-    #         )
-    #     if not self.employment_details.is_valid():
-    #         self.errors.update(
-    #             {
-    #                 f"employment_details__{k}": v
-    #                 for k, v in self.employment_details.errors.items()
-    #             }
-    #         )
-    #     if not self.termination_details.is_valid():
-    #         self.errors.update(
-    #             {
-    #                 f"termination_details__{k}": v
-    #                 for k, v in self.termination_details.errors.items()
-    #             }
-    #         )
-    #     print("Full clean")
-    #     print(self.data)
-    #     print("CLEANED DATA")
-    #     print(self.cleaned_data)
-    #     print("errors", self.errors)
-
-    # def save(self, commit=True):
-    #     # Save the main Employee model first
-    #     employee = super().save(commit=False)
-
-    #     personal_info = self.personal_info.save(commit=False)
-    #     personal_info.employee = employee
-
-    #     contact_info = self.contact_info.save(commit=False)
-    #     contact_info.employee = employee
-
-    #     emergency_contact = self.emergency_contact.save(commit=False)
-    #     emergency_contact.employee = employee
-
-    #     education = self.education.save(commit=False)
-    #     education.employee = employee
-
-    #     employment_details = self.employment_details.save(commit=False)
-    #     employment_details.employee = employee
-
-    #     termination_details = self.termination_details.save(commit=False)
-    #     termination_details.employee = employee
-
-    #     if commit:
-    #         employee.save()
-    #         personal_info.save()
-    #         contact_info.save()
-    #         emergency_contact.save()
-    #         education.save()
-    #         employment_details.save()
-    #         termination_details.save()
-
-    #     return employee
+EmployeeFormSet = modelformset_factory(
+    Employee,
+    fields=["status", "personal_info", "contact_info", "emergency_contact"],
+    extra=1,
+)

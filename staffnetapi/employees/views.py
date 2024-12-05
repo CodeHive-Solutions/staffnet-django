@@ -5,19 +5,34 @@ import requests
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.forms import BaseModelForm
 from django.forms.models import model_to_dict
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from administration.models import *
-from employees.forms import (ContactInformationForm, EmployeeForm,
-                             PersonalInformationForm)
+from employees.forms import (
+    ContactInformationForm,
+    EducationForm,
+    EmergencyContactForm,
+    EmployeeForm,
+    EmployeeFormSet,
+    EmploymentDetailsForm,
+    PersonalInformationForm,
+    TerminationDetailsForm,
+)
 
-from .models import (ContactInformation, Education, EmergencyContact, Employee,
-                     EmploymentDetails, PersonalInformation,
-                     TerminationDetails)
+from .models import (
+    ContactInformation,
+    Education,
+    EmergencyContact,
+    Employee,
+    EmploymentDetails,
+    PersonalInformation,
+    TerminationDetails,
+)
 
 
 def parse_date(date_str):
@@ -638,48 +653,57 @@ def employee_update_view(request, employee_id):
 
 class EmployeeCreateView(CreateView):
     model = Employee
-    form_class = EmployeeForm
-    success_url = reverse_lazy("employee_list")
+    # form_class = EmployeeForm
+    template_name = "employees/test_employee.html"
+    success_url = reverse_lazy("employees-list")
+    fields = ["status"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["view_type"] = "Crear"
         context["button_label"] = "Save"
+        context["personal_information_form"] = PersonalInformationForm()
+        context["contact_information_form"] = ContactInformationForm()
+        context["emergency_contact_form"] = EmergencyContactForm()
+        context["education_form"] = EducationForm()
+        context["employment_details_form"] = EmploymentDetailsForm()
+        context["termination_details_form"] = TerminationDetailsForm()
+        context["employee_form"] = EmployeeFormSet()
         return context
 
-    def form_valid(self, form):
-        # Use a transaction to ensure atomicity
-        with transaction.atomic():
-            # Save related models first
-            personal_info = form.cleaned_data.get("personal_info")
-            contact_info = form.cleaned_data.get("contact_info")
-            emergency_contact = form.cleaned_data.get("emergency_contact")
-            education = form.cleaned_data.get("education")
-            employment_details = form.cleaned_data.get("employment_details")
-            print(personal_info)
+    def post(self, request, *args, **kwargs):
+        personal_information_form = PersonalInformationForm(request.POST)
+        contact_information_form = ContactInformationForm(request.POST)
+        emergency_contact_form = EmergencyContactForm(request.POST)
+        education_form = EducationForm(request.POST)
+        employment_details_form = EmploymentDetailsForm(request.POST)
+        termination_details_form = TerminationDetailsForm(request.POST)
 
-            # Save the related instances
-            if personal_info:
-                personal_info.save()
-            if contact_info:
-                contact_info.save()
-            if emergency_contact:
-                emergency_contact.save()
-            if education:
-                education.save()
-            if employment_details:
-                employment_details.save()
+        if (
+            personal_information_form.is_valid()
+            and contact_information_form.is_valid()
+            and emergency_contact_form.is_valid()
+            and education_form.is_valid()
+            and employment_details_form.is_valid()
+            and termination_details_form.is_valid()
+        ):
+            personal_information = personal_information_form.save()
+            contact_information = contact_information_form.save()
+            emergency_contact = emergency_contact_form.save()
+            education = education_form.save()
+            employment_details = employment_details_form.save()
+            termination_details = termination_details_form.save()
 
-            # Now save the Employee instance with the related objects
-            Employee.objects.create(
-                personal_info=personal_info,
-                contact_info=contact_info,
+            employee = Employee(
+                personal_info=personal_information,
+                contact_info=contact_information,
                 emergency_contact=emergency_contact,
                 education=education,
                 employment_details=employment_details,
+                termination_details=termination_details,
             )
-
-        return super().form_valid(form)
+            employee.save()
+            return redirect("employees-list")
 
 
 class EmployeeUpdateView(UpdateView):
@@ -691,4 +715,5 @@ class EmployeeUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context["view_type"] = "Update"
         context["button_label"] = "Update"
+
         return context

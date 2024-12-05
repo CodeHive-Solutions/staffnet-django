@@ -11,6 +11,9 @@
 {% endblock %}
 
 {% block content %}
+  {% if form %}
+    {{ form }}
+  {% endif %}
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">{{ view_type }} Empleado</h1>
     {% if view_type == 'Crear' %}
@@ -72,7 +75,11 @@
                     <div class="form-group">
                       <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                       {{ field }}
+                      {% for error in field.errors %}
+                        <li>AQUIIIIIIIIIII{{ error }}</li>
+                      {% endfor %}
                       {% if field.errors %}
+                        <p class="text-red-500 text-xs italic">SIIIIIIIIIII</p>
                         <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
                       {% endif %}
                     </div>
