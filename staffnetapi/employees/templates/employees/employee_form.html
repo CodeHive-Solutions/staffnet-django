@@ -11,9 +11,35 @@
 {% endblock %}
 
 {% block content %}
-  {% if form %}
-    {{ form }}
-  {% endif %}
+  <H1>FORM</H1>
+  {{ form }}
+  {% comment %} {% debug %} {% endcomment %}
+  {{ form.personal_info }}
+  <h1>FORM2</h1>
+  {% for form_name, form in forms.items %}
+    <div class="form-errors">
+      {% for field, errors in form.errors.items %}
+        <div class="field-errors">
+          {% comment %}Use verbose_name{% endcomment %}
+          <strong>{{ field|capfirst }}</strong>
+          <ul>
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+      {% if form.non_field_errors %}
+        <div class="non-field-errors">
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">{{ view_type }} Empleado</h1>
     {% if view_type == 'Crear' %}
@@ -37,7 +63,7 @@
       </div>
     {% endif %}
 
-    <form method="post" enctype="multipart/form-data" class="space-y-8">
+    <form method="post" enctype="multipart/form-data" id="employee-form" class="space-y-8">
       {% csrf_token %}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg flex flex-col h-full">
@@ -64,7 +90,7 @@
           <div style="width: 100%" class="flex-grow">
             <div class="space-y-4">
               {{ form.personal_info.non_field_errors }}
-              {% for field in form.personal_info %}
+              {% for field in personal_info_form %}
                 {% if field.name != 'photo' %}
                   {% if field.field.widget.input_type == 'checkbox' %}
                     <div class="form-group flex items-center">
@@ -75,11 +101,7 @@
                     <div class="form-group">
                       <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                       {{ field }}
-                      {% for error in field.errors %}
-                        <li>AQUIIIIIIIIIII{{ error }}</li>
-                      {% endfor %}
                       {% if field.errors %}
-                        <p class="text-red-500 text-xs italic">SIIIIIIIIIII</p>
                         <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
                       {% endif %}
                     </div>
@@ -93,7 +115,7 @@
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Detalles del empleado</h2>
           <div class="space-y-4">
-            {% for field in form.employment_details %}
+            {% for field in employment_details_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
                   {{ field }}
@@ -117,7 +139,7 @@
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Contacto de emergencia</h2>
           <div class="space-y-4">
-            {% for field in form.emergency_contact %}
+            {% for field in emergency_contact_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
                   {{ field }}
@@ -139,7 +161,7 @@
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Educación</h2>
           <div class="space-y-4">
-            {% for field in form.education %}
+            {% for field in education_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
                   {{ field }}
@@ -161,7 +183,7 @@
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Información de contacto</h2>
           <div class="space-y-4">
-            {% for field in form.contact_info %}
+            {% for field in contact_info_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
                   {{ field }}
@@ -211,28 +233,4 @@
       </div>
     </form>
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      function formatCurrency(event) {
-        const salary = event.target.value
-        event.target.value = new Intl.NumberFormat('es-CO', {
-          style: 'currency',
-          currency: 'COP',
-          minimumFractionDigits: 0
-        }).format(salary)
-      }
-      function restrictInput(event) {
-        const salary = event.target.value
-        event.target.value = salary.replace(/[^0-9]/g, '')
-      }
-    
-      const salaryInput = document.getElementById('id_employment_details-salary')
-      const transportAllowanceInput = document.getElementById('id_employment_details-transportation_allowance')
-      salaryInput.addEventListener('change', formatCurrency)
-      salaryInput.addEventListener('input', restrictInput)
-      transportAllowanceInput.addEventListener('change', formatCurrency)
-      transportAllowanceInput.addEventListener('input', restrictInput)
-    })
-  </script>
 {% endblock %}

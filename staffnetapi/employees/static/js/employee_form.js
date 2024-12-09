@@ -18,15 +18,37 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Format the salary in COP
-// document.addEventListener('DOMContentLoaded', function () {
-//     const salaryInput = document.getElementById('id_employment_details-salary');
-//     salaryInput.addEventListener('change', function (event) {
-//         const salary = event.target.value;
-//         console.log(salary);
-//         event.target.value = new Intl.NumberFormat('es-CO', {
-//             style: 'currency',
-//             currency: 'COP',
-//             minimumFractionDigits: 0,
-//         }).format(salary);
-//     });
-// });
+document.addEventListener('DOMContentLoaded', function () {
+    function formatCurrency(event) {
+        const salary = event.target.value
+        event.target.value = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        }).format(salary)
+    }
+    function restrictInput(event) {
+        const salary = event.target.value
+        event.target.value = salary.replace(/[^0-9]/g, '')
+    }
+
+    const salaryInput = document.getElementById('id_salary')
+    const transportAllowanceInput = document.getElementById('id_transportation_allowance')
+    salaryInput.addEventListener('change', formatCurrency)
+    salaryInput.addEventListener('input', restrictInput)
+    transportAllowanceInput.addEventListener('change', formatCurrency)
+    transportAllowanceInput.addEventListener('input', restrictInput)
+})
+
+// Remove the currency format when submitting the form
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('employee-form')
+    form.addEventListener('submit', function () {
+        const salaryInput = document.getElementById('id_salary')
+        const transportAllowanceInput = document.getElementById('id_transportation_allowance')
+        console.log(salaryInput.value)
+        console.log(transportAllowanceInput.value)
+        salaryInput.value = salaryInput.value.replace(/[^0-9]/g, '')
+        transportAllowanceInput.value = transportAllowanceInput.value.replace(/[^0-9]/g, '')
+    })
+})

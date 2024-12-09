@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 # Create your models here.
@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
         verbose_name="Empleado",
         help_text="Seleccione qué empleado está relacionado con este usuario",
     )
-    # password = None
+    password = None
     last_login = None
     first_name = None
     last_name = None

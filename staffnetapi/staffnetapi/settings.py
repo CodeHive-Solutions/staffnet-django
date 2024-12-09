@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "employees",
     "custom_user",
     "django.contrib.admin",
+    "test_app",
 ]
 
 
@@ -215,7 +216,8 @@ USE_TZ = True
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "collected_static"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

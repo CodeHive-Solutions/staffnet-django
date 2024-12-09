@@ -3,11 +3,11 @@
 from django.urls import path
 
 from .views import (
-    EmployeeDetailView,
+    EmployeeDetailView,  # EmployeeCreateView,
     EmployeeListView,
+    create_employee,
     employee_update_view,
     get_employees_from_db,
-    EmployeeCreateView,
 )
 
 urlpatterns = [
@@ -15,5 +15,6 @@ urlpatterns = [
     path("list/", EmployeeListView.as_view(), name="employees-list"),
     path("<int:pk>/", EmployeeDetailView.as_view(), name="employees-detail"),
     path("<int:pk>/update/", employee_update_view, name="employee-update"),
-    path("create/", EmployeeCreateView.as_view(), name="employee-create"),
+    # path("create/", EmployeeCreateView.as_view(), name="employee-create"),
+    path("create/", create_employee, name="employee-create"),
 ]
