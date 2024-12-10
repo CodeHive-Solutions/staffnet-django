@@ -131,3 +131,14 @@ input[type=number] {
 .form-group input[datepicker] {
     padding-left: 2.2rem;
 }
+
+.non-field-errors,
+.errors {
+    color: red;
+    font-style: italic;
+}
+
+.errors {
+    font-size: .875rem;
+    line-height: 1.25rem;
+}

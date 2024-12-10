@@ -813,6 +813,7 @@ def create_employee(request):
             employee.employment_details = employment_details
             employee.termination_details = termination_details
             employee.save()
+            print(employee.status)
 
             return redirect("employees-list")
         else:
@@ -822,10 +823,9 @@ def create_employee(request):
             print(contact_info_form.errors)
             print(emergency_contact_form.errors)
             print(education_form.errors)
-            print(employment_details_form.errors)
+            print("empo", employment_details_form.errors)
             print(termination_details_form.errors)
     else:
-        print("Hubo un error")
         # Create empty forms for GET requests
         employee_form = EmployeeForm()
         personal_info_form = PersonalInformationForm()
@@ -846,5 +846,6 @@ def create_employee(request):
             "education_form": education_form,
             "employment_details_form": employment_details_form,
             "termination_details_form": termination_details_form,
+            "view_type": "Crear",
         },
     )

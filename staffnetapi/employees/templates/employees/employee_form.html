@@ -11,35 +11,6 @@
 {% endblock %}
 
 {% block content %}
-  <H1>FORM</H1>
-  {{ form }}
-  {% comment %} {% debug %} {% endcomment %}
-  {{ form.personal_info }}
-  <h1>FORM2</h1>
-  {% for form_name, form in forms.items %}
-    <div class="form-errors">
-      {% for field, errors in form.errors.items %}
-        <div class="field-errors">
-          {% comment %}Use verbose_name{% endcomment %}
-          <strong>{{ field|capfirst }}</strong>
-          <ul>
-            {% for error in errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% endfor %}
-      {% if form.non_field_errors %}
-        <div class="non-field-errors">
-          <ul>
-            {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-    </div>
-  {% endfor %}
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6">{{ view_type }} Empleado</h1>
     {% if view_type == 'Crear' %}
@@ -48,19 +19,6 @@
       <p class="mb-6 text-gray-600">
         Aquí puedes actualizar la información de <strong>{{ employee.full_name }}</strong>.
       </p>
-    {% endif %}
-
-    {% if form.errors %}
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-        <strong class="font-bold">Please correct the errors below:</strong>
-        <ul class="mt-2 list-disc list-inside">
-          {% for field, errors in form.errors.items %}
-            <li>
-              <strong>{{ field }}:</strong> {{ errors|join:', ' }}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
     {% endif %}
 
     <form method="post" enctype="multipart/form-data" id="employee-form" class="space-y-8">
@@ -86,35 +44,36 @@
             </div>
           </div>
 
-          <!-- Form Block -->
-          <div style="width: 100%" class="flex-grow">
-            <div class="space-y-4">
-              {{ form.personal_info.non_field_errors }}
-              {% for field in personal_info_form %}
-                {% if field.name != 'photo' %}
-                  {% if field.field.widget.input_type == 'checkbox' %}
-                    <div class="form-group flex items-center">
-                      {{ field }}
-                      <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
-                    </div>
-                  {% else %}
-                    <div class="form-group">
-                      <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                      {{ field }}
-                      {% if field.errors %}
-                        <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                      {% endif %}
-                    </div>
+          <!-- Personal Info Fields -->
+          <div class="space-y-4">
+            {% for field in personal_info_form %}
+              {% if field.name != 'photo' %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <p class="errors">{{ field.errors|join:', ' }}</p>
                   {% endif %}
-                {% endif %}
-              {% endfor %}
-            </div>
+                </div>
+              {% endif %}
+            {% endfor %}
           </div>
+          <!-- Non-field errors -->
+          {% if personal_info_form.non_field_errors %}
+            <div class="non-field-errors">
+              <ul class="mt-2 list-disc list-inside">
+                {% for error in personal_info_form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
         </div>
 
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Detalles del empleado</h2>
           <div class="space-y-4">
+            <!-- Employment Details Fields -->
             {% for field in employment_details_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
@@ -122,45 +81,60 @@
                   <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
                 </div>
               {% elif '(LEGADO)' in field.label and not field.value %}
-                {% comment %}Do nothing{% endcomment %}
+                {% comment %}TODO: Do the input field unusable{% endcomment %}
               {% else %}
                 <div class="form-group">
                   <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                   {{ field }}
                   {% if field.errors %}
-                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                    <p class="errors">{{ field.errors|join:', ' }}</p>
                   {% endif %}
                 </div>
               {% endif %}
             {% endfor %}
           </div>
+          <!-- Non-field errors -->
+          {% if employment_details_form.non_field_errors %}
+            <div class="non-field-errors">
+              <ul class="mt-2 list-inside">
+                {% for error in employment_details_form.non_field_errors %}
+                  <li>* {{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
         </div>
 
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Contacto de emergencia</h2>
           <div class="space-y-4">
+            <!-- Emergency Contact Fields -->
             {% for field in emergency_contact_form %}
-              {% if field.field.widget.input_type == 'checkbox' %}
-                <div class="form-group flex items-center">
-                  {{ field }}
-                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
-                </div>
-              {% else %}
-                <div class="form-group">
-                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                  {{ field }}
-                  {% if field.errors %}
-                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                  {% endif %}
-                </div>
-              {% endif %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="errors">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
             {% endfor %}
           </div>
+          <!-- Non-field errors -->
+          {% if emergency_contact_form.non_field_errors %}
+            <div class="non-field-errors">
+              <ul class="mt-2 list-disc list-inside">
+                {% for error in emergency_contact_form.non_field_errors %}
+                  <li>* {{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
         </div>
 
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Educación</h2>
           <div class="space-y-4">
+            <!-- Education Fields -->
             {% for field in education_form %}
               {% if field.field.widget.input_type == 'checkbox' %}
                 <div class="form-group flex items-center">
@@ -172,41 +146,56 @@
                   <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                   {{ field }}
                   {% if field.errors %}
-                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                    <p class="errors">{{ field.errors|join:', ' }}</p>
                   {% endif %}
                 </div>
               {% endif %}
             {% endfor %}
           </div>
+          <!-- Non-field errors -->
+          {% if education_form.non_field_errors %}
+            <div class="non-field-errors">
+              <ul class="mt-2 list-disc list-inside">
+                {% for error in education_form.non_field_errors %}
+                  <li>* {{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
         </div>
 
         <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
           <h2 class="text-xl font-semibold mb-4 text-gray-800">Información de contacto</h2>
           <div class="space-y-4">
+            <!-- Contact Info Fields -->
             {% for field in contact_info_form %}
-              {% if field.field.widget.input_type == 'checkbox' %}
-                <div class="form-group flex items-center">
-                  {{ field }}
-                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold">{{ field.label }}</label>
-                </div>
-              {% else %}
-                <div class="form-group">
-                  <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
-                  {{ field }}
-                  {% if field.errors %}
-                    <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
-                  {% endif %}
-                </div>
-              {% endif %}
+              <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <p class="errors">{{ field.errors|join:', ' }}</p>
+                {% endif %}
+              </div>
             {% endfor %}
           </div>
+          <!-- Non-field errors -->
+          {% if contact_info_form.non_field_errors %}
+            <div class="non-field-errors">
+              <ul class="mt-2 list-disc list-inside">
+                {% for error in contact_info_form.non_field_errors %}
+                  <li>* {{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
         </div>
 
-        {% if view_type == 'Update' %}
+        {% if view_type == 'Actualizar' %}
           <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Terminación de contrato</h2>
             <div class="space-y-4">
-              {% for field in form.termination_details %}
+              <!-- Termination Details Fields -->
+              {% for field in termination_details_form %}
                 {% if field.field.widget.input_type == 'checkbox' %}
                   <div class="form-group flex items-center">
                     {{ field }}
@@ -217,12 +206,22 @@
                     <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
-                      <p class="text-red-500 text-xs italic">{{ field.errors|join:', ' }}</p>
+                      <p class="errors">{{ field.errors|join:', ' }}</p>
                     {% endif %}
                   </div>
                 {% endif %}
               {% endfor %}
             </div>
+            <!-- Non-field errors -->
+            {% if termination_details_form.non_field_errors %}
+              <div class="non-field-errors">
+                <ul class="mt-2 list-disc list-inside">
+                  {% for error in termination_details_form.non_field_errors %}
+                    <li>* {{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
           </div>
         {% endif %}
       </div>

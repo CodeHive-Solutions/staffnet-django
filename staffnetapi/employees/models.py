@@ -45,7 +45,9 @@ class UpperEmailField(models.EmailField):
 
 # Personal Information Model
 class PersonalInformation(models.Model):
-    photo = models.ImageField(upload_to=user_photo_path, verbose_name="Foto", null=True, blank=True)
+    photo = models.ImageField(
+        upload_to=user_photo_path, verbose_name="Foto", null=True, blank=True
+    )
     identification = models.PositiveIntegerField(
         unique=True,
         verbose_name="Identificación",
@@ -210,9 +212,6 @@ class EmploymentDetails(models.Model):
     transportation_allowance = models.DecimalField(
         max_digits=12, decimal_places=2, verbose_name="Auxilio de Transporte"
     )
-    remote_work_application_date = models.DateField(
-        verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
-    )
     payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
     bank = models.ForeignKey(
         "administration.Bank",
@@ -289,6 +288,9 @@ class EmploymentDetails(models.Model):
     windows_user = UpperCharField(
         max_length=50, verbose_name="Usuario de Windows", null=True, blank=True
     )
+    remote_work_application_date = models.DateField(
+        verbose_name="Fecha de Aplicación de Teletrabajo", null=True, blank=True
+    )
     remote_work = models.BooleanField(default=False, verbose_name="Trabajo Remoto")
 
     class Meta:
@@ -300,7 +302,7 @@ class EmploymentDetails(models.Model):
             raise ValidationError("Fecha de aplicación de teletrabajo requerida.")
         elif not self.remote_work and self.remote_work_application_date:
             raise ValidationError(
-                "No se puede aplicar teletrabajo sin marcar la opción."
+                "No se puede tener una fecha de aplicación de teletrabajo sin tener activado el teletrabajo."
             )
 
     def clean(self):

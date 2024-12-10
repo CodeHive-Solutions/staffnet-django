@@ -1,12 +1,7 @@
+from collections import OrderedDict
 from datetime import datetime, timedelta
-from typing import Any, Mapping
 
 from django import forms
-from django.core.files.base import File
-from django.db.models.base import Model
-from django.forms import modelformset_factory
-from django.forms.models import inlineformset_factory
-from django.forms.utils import ErrorList
 
 from .models import (
     ContactInformation,
@@ -147,102 +142,6 @@ class TerminationDetailsForm(forms.ModelForm):
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
-
-
-# class EmployeeForm(forms.ModelForm):
-
-#     def __init__(self, *args, **kwargs):
-#         # Accept nested forms from kwargs or initialize new ones
-#         personal_info_data = kwargs.pop("personal_info_data", None)
-#         contact_info_data = kwargs.pop("contact_info_data", None)
-#         emergency_contact_data = kwargs.pop("emergency_contact_data", None)
-#         education_data = kwargs.pop("education_data", None)
-#         employment_details_data = kwargs.pop("employment_details_data", None)
-#         termination_details_data = kwargs.pop("termination_details_data", None)
-#         super().__init__(*args, **kwargs)
-#         # Initialize sub-forms
-#         self.personal_info = PersonalInformationForm(personal_info_data)
-#         self.contact_info = ContactInformationForm(contact_info_data)
-#         self.emergency_contact = EmergencyContactForm(emergency_contact_data)
-#         self.education = EducationForm(education_data)
-#         self.employment_details = EmploymentDetailsForm(employment_details_data)
-#         self.termination_details = TerminationDetailsForm(termination_details_data)
-
-#     def is_valid(self):
-#         # Validate sub-forms
-#         return super().is_valid() and all(
-#             [
-#                 self.personal_info.is_valid(),
-#                 self.contact_info.is_valid(),
-#                 self.emergency_contact.is_valid(),
-#                 self.education.is_valid(),
-#                 self.employment_details.is_valid(),
-#                 self.termination_details.is_valid(),
-#             ]
-#         )
-
-#     class Meta:
-#         model = Employee
-#         fields = ["status"]
-#         # fields = "__all__"
-
-#     def clean(self):
-#         print("Cleaning employee")
-#         # personal_info = PersonalInformationForm(self.data)
-#         # if not personal_info.is_valid():
-#         #     for field, errors in personal_info.errors.items():
-#         #         for error in errors:
-#         #             print(f"Error in {field}: {error}")
-#         #             self.add_error(field, error)
-#         cleaned_data = super().clean()
-#         # print(self.emergency_contact.cleaned_data)
-#         termination_details = cleaned_data.get("termination_details")
-#         status = cleaned_data.get("status")
-
-#         if termination_details and status:
-#             raise forms.ValidationError(
-#                 "An active employee cannot have termination details."
-#             )
-#         return cleaned_data
-
-#     def save(self, commit=True):
-#         print("Saving employee")
-
-#         super().save(commit=commit)
-#         # personal_info = self.personal_info.save(commit=False)
-#         # contact_info = self.contact_info.save(commit=False)
-#         # emergency_contact = self.emergency_contact.save(commit=False)
-#         # education = self.education.save(commit=False)
-#         # employment_details = self.employment_details.save(commit=False)
-#         # termination_details = self.termination_details.save(commit=False)
-
-#         # employee = super().save(commit=False)
-
-#         # personal_info.save()
-#         # contact_info.save()
-#         # emergency_contact.save()
-#         # education.save()
-#         # employment_details.save()
-#         # termination_details.save()
-
-#         # employee.personal_info = personal_info
-#         # employee.contact_info = contact_info
-#         # employee.emergency_contact = emergency_contact
-#         # employee.education = education
-#         # employee.employment_details = employment_details
-#         # employee.termination_details = termination_details
-
-#         # if commit:
-#         #     employee.save()
-
-#         # return employee
-
-
-# # EmployeeFormSet = modelformset_factory(
-# #     Employee,
-# #     fields=["status", "personal_info", "contact_info", "emergency_contact"],
-# #     extra=1,
-# # )
 
 
 class EmployeeForm(forms.ModelForm):
