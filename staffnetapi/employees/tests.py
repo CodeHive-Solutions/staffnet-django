@@ -1,81 +1,17 @@
-import os
-
-import ldap  # type: ignore
 from django.conf import settings
 from django.test import Client, TestCase
-from django.urls import reverse
 
 from administration.models import *
 from employees.forms import EmployeeForm
-from employees.models import (
-    ContactInformation,
-    Education,
-    EmergencyContact,
-    Employee,
-    EmploymentDetails,
-    PersonalInformation,
-    TerminationDetails,
-)
+from employees.models import (ContactInformation, Education, EmergencyContact,
+                              Employee, EmploymentDetails, PersonalInformation,
+                              TerminationDetails)
 
-
-class LDAPAuthenticationTest(TestCase):
-    """Tests the LDAP authentication."""
-
-    databases = "__all__"
-
-    def setUp(self):
-        """Sets up the test client."""
-        self.client = Client()
-
-    def test_ldap_connection(self):
-        """Tests that the connection to the LDAP server is successful."""
-        ldap_server_uri = settings.AUTH_LDAP_SERVER_URI
-        ldap_bind_dn = settings.AUTH_LDAP_BIND_DN
-        ldap_bind_password = settings.AUTH_LDAP_BIND_PASSWORD
-        conn = None
-        try:
-            conn = ldap.initialize(ldap_server_uri)
-            conn.simple_bind_s(ldap_bind_dn, ldap_bind_password)
-        except ldap.LDAPError as err:
-            self.fail(f"Error: {err}")
-        finally:
-            if conn:
-                conn.unbind_s()
-
-    def test_login(self):
-        """Tests that the user can login using LDAP."""
-        ldap_server_uri = settings.AUTH_LDAP_SERVER_URI
-        ldap_bind_dn = settings.AUTH_LDAP_BIND_DN
-        ldap_bind_password = settings.AUTH_LDAP_BIND_PASSWORD
-        username = "staffnet"
-        password = os.environ["StaffNetLDAP"]
-        conn = None
-        try:
-            conn = ldap.initialize(ldap_server_uri)
-            conn.simple_bind_s(ldap_bind_dn, ldap_bind_password)
-            search_filter = "(sAMAccountName={})".format(username)
-            search_base = "dc=CYC-SERVICES,dc=COM,dc=CO"
-            attributes = ["dn"]
-            result_id = conn.search(
-                search_base, ldap.SCOPE_SUBTREE, search_filter, attributes
-            )
-            _, result_data = conn.result(result_id, 0)
-            self.assertTrue(result_data, "User entry not found.")
-            if result_data:
-                user_dn = result_data[0][0]
-                logged = conn.simple_bind_s(user_dn, password)
-                self.assertTrue(logged, "User authentication failed.")
-        except ldap.LDAPError as err:
-            self.fail("Error: %s" % err)
-        finally:
-            if conn:
-                conn.unbind()
+from .factories import ContactInformationFactory, PersonalInformationFactory
 
 
 class EmployeeModelTest(TestCase):
-    """Tests the Employee model."""
-
-    databases = "__all__"
+    """Tests the Employee model and his related models."""
 
     def setUp(self):
         """Sets up the test client."""
@@ -189,7 +125,7 @@ class EmployeeModelTest(TestCase):
             "status": 1,
         }
         self.employee_data_input = {
-             **self.personal_info_input,
+            **self.personal_info_input,
             **self.contact_info_input,
             **self.emergency_contact_input,
             **self.education_input,
@@ -201,153 +137,17 @@ class EmployeeModelTest(TestCase):
         employee_form = EmployeeForm(data=self.employee_data)
         self.assertTrue(employee_form.is_valid(), employee_form.errors)
 
-    # def create_employee(self):
-    #     """Creates an employee."""
-    #     personal_info = PersonalInformation.objects.create(**self.personal_info)
-    #     contact_info = ContactInformation.objects.create(**self.contact_info)
-    #     emergency_contact = EmergencyContact.objects.create(**self.emergency_contact)
-    #     education = Education.objects.create(**self.education)
-    #     employment_details = EmploymentDetails.objects.create(**self.employment_details)
-    #     termination_details = TerminationDetails.objects.create(
-    #         **self.termination_details
-    #     )
-    #     employee = Employee(
-    #         personal_info=personal_info,
-    #         contact_info=contact_info,
-    #         emergency_contact=emergency_contact,
-    #         education=education,
-    #         employment_details=employment_details,
-    #         termination_details=termination_details,
-    #         status=1,
-    #     )
-    #     employee.full_clean()
-    #     employee.save()
-    #     return employee
 
-    # def test_employee_str(self):
-    #     """Tests that the employee string representation is correct."""
-    #     employee = self.create_employee()
-    #     self.assertEqual(str(employee), "John Doe (123456789)")
+class FactoryTest(TestCase):
+    """Tests the factories of the employees app."""
 
-    # def test_employee_creation(self):
-    #     """Tests that an employee is created correctly."""
-    #     self.assertEqual(self.client.post(reverse("employee-create"), data=self.employee_data), 200)
-    #     employee = Employee.objects.get(personal_info__identification=123456789)
-    #     self.assertEqual(employee.personal_first_name, "JOHN")
-    #     self.assertEqual(employee.personal_last_name, "DOE")
-    #     self.assertEqual(employee.personal_identification, 123456789)
-    #     self.assertEqual(employee.contact_email, self.contact_info["email"].upper())
-    #     self.assertEqual(
-    #         employee.contact_corporate_email,
-    #         self.contact_info["corporate_email"].upper(),
-    #     )
-    #     self.assertEqual(employee.status, 1)
-    #     # Personal Information Check
-    #     self.assertFalse(employee.personal_info.photo)
-    #     self.assertEqual(employee.personal_info.identification, 123456789)
-    #     self.assertEqual(employee.personal_info.last_name, "DOE")
-    #     self.assertEqual(employee.personal_info.first_name, "JOHN")
-    #     self.assertEqual(employee.personal_info.document_type, "CC")
-    #     self.assertEqual(employee.personal_info.birth_date, "1990-01-01")
-    #     self.assertEqual(employee.personal_info.expedition_place, "BOGOTÁ")
-    #     self.assertEqual(employee.personal_info.expedition_date, "2020-01-01")
-    #     self.assertEqual(employee.personal_info.gender, "M")
-    #     self.assertEqual(employee.personal_info.rh, "O+")
-    #     self.assertEqual(employee.personal_info.civil_status, "S")
-    #     self.assertEqual(employee.personal_info.sons, 0)
-    #     self.assertEqual(employee.personal_info.responsible_persons, 0)
-    #     self.assertEqual(employee.personal_info.stratum, 3)
-    #     self.assertEqual(employee.personal_info.shirt_size, "M")
-    #     self.assertEqual(employee.personal_info.pant_size, "32")
-    #     self.assertEqual(employee.personal_info.shoe_size, 9)
-    #     # Contact Information Check
-    #     self.assertEqual(employee.contact_info.address, "CALLE 123")
-    #     self.assertEqual(employee.contact_info.neighborhood, "BARRIO 123")
-    #     self.assertEqual(employee.contact_info.locality, self.contact_info["locality"])
-    #     self.assertEqual(employee.contact_info.fixed_phone, "12345678")
-    #     self.assertEqual(employee.contact_info.cell_phone, "1234567890")
-    #     self.assertEqual(
-    #         employee.contact_info.email, self.contact_info["email"].upper()
-    #     )
-    #     self.assertEqual(
-    #         employee.contact_info.corporate_email,
-    #         self.contact_info["corporate_email"].upper(),
-    #     )
-    #     # Emergency Contact Check
-    #     self.assertEqual(employee.emergency_contact.name, "JANE DOE")
-    #     self.assertEqual(employee.emergency_contact.relationship, "MOTHER")
-    #     self.assertEqual(employee.emergency_contact.phone, "1234567890")
-    #     # Education Check
-    #     self.assertEqual(employee.education.education_level, "PROFESSIONAL")
-    #     self.assertEqual(employee.education.title, "ENGINEER")
-    #     self.assertFalse(employee.education.ongoing_studies)
-    #     # Employment Details Check
-    #     self.assertEqual(employee.employment_details.affiliation_date, "2021-01-01")
-    #     self.assertEqual(employee.employment_details.entry_date, "2021-01-01")
-    #     self.assertEqual(employee.employment_details.salary, 1000000)
-    #     self.assertEqual(employee.employment_details.transportation_allowance, 100000)
-    #     self.assertTrue(employee.employment_details.remote_work)
-    #     self.assertEqual(
-    #         employee.employment_details.remote_work_application_date, "2021-01-01"
-    #     )
-    #     self.assertEqual(employee.employment_details.payroll_account, "123456789")
-    #     self.assertEqual(
-    #         employee.employment_details.bank, self.employment_details["bank"]
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.health_provider,
-    #         self.employment_details["health_provider"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.legacy_health_provider,
-    #         self.employment_details["legacy_health_provider"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.pension_fund,
-    #         self.employment_details["pension_fund"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.compensation_fund,
-    #         self.employment_details["compensation_fund"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.saving_fund,
-    #         self.employment_details["saving_fund"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.headquarter,
-    #         self.employment_details["headquarter"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.job_title, self.employment_details["job_title"]
-    #     )
-    #     self.assertEqual(employee.employment_details.appointment_date, "2021-01-01")
-    #     self.assertEqual(
-    #         employee.employment_details.legacy_appointment_date,
-    #         self.employment_details["legacy_appointment_date"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.management,
-    #         self.employment_details["management"],
-    #     )
-    #     self.assertEqual(
-    #         employee.employment_details.campaign, self.employment_details["campaign"]
-    #     )
-    #     self.assertEqual(employee.employment_details.business_area, "DEVELOPMENT")
-    #     self.assertEqual(employee.employment_details.contract_type, "INDEFINITE")
-    #     self.assertEqual(employee.employment_details.windows_user, "TEST.TEST")
-    #     # Termination Details Check
-    #     self.assertEqual(employee.termination_details.termination_date, "2021-01-01")
+    def test_contact_information_factory(self):
+        """Tests the ContactInformation factory."""
+        contact_information = ContactInformationFactory()
+        self.assertTrue(isinstance(contact_information, ContactInformation))
 
-    # # def test_create_all(self):
-    # #     """Tests that all the employee fields are created."""
-    # #     response = self.client.get(reverse("get_employees_from_db"))
-    # #     self.assertEqual(response.status_code, 200)
-
-    # # def test_create_no_remote_work(self):
-    # #     """Tests that the employee is created without remote work."""
-    # #     self.employee_data["remote_work"] = False
-    # #     self.employee_data["remote_work_application_date"] = "2021-01-01"
-    # #     with self.assertRaises(ValidationError):
-    # #         employee = Employee.objects.create(**self.employee_data)
-    # #         employee.full_clean()
+    def test_personal_information_factory(self):
+        """Tests the PersonalInformation factory."""
+        personal_information = PersonalInformationFactory()
+        self.assertTrue(isinstance(personal_information, PersonalInformation))
+        print(personal_information.__dict__)

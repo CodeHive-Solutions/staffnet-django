@@ -661,120 +661,6 @@ class EmployeeUpdateView(UpdateView):
         return context
 
 
-# class EmployeeCreateView(CreateView):
-#     model = Employee
-#     form_class = EmployeeForm
-#     # template_name = "employees/test_employee.html"
-#     success_url = reverse_lazy("employees-list")
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["view_type"] = "Crear"
-#         context['form'] = EmployeeForm(instance=self.object) if self.object else EmployeeForm()
-#         return context
-
-#     def post(self, request, *args, **kwargs):
-#         # Process forms as in your existing code
-#         forms = {
-#             "personal_information_form": PersonalInformationForm(request.POST),
-#             "contact_information_form": ContactInformationForm(request.POST),
-#             "emergency_contact_form": EmergencyContactForm(request.POST),
-#             "education_form": EducationForm(request.POST),
-#             "employment_details_form": EmploymentDetailsForm(request.POST),
-#             "termination_details_form": TerminationDetailsForm(request.POST),
-#         }
-
-#         all_valid = all(form.is_valid() for form in forms.values())
-
-#         if all_valid:
-#             personal_information = forms["personal_information_form"].save()
-#             contact_information = forms["contact_information_form"].save()
-#             emergency_contact = forms["emergency_contact_form"].save()
-#             education = forms["education_form"].save()
-#             employment_details = forms["employment_details_form"].save()
-#             termination_details = forms["termination_details_form"].save()
-
-#             employee = Employee(
-#                 personal_info=personal_information,
-#                 contact_info=contact_information,
-#                 emergency_contact=emergency_contact,
-#                 education=education,
-#                 employment_details=employment_details,
-#                 termination_details=termination_details,
-#             )
-#             employee.save()
-#             return redirect("employees-list")
-#         else:
-#             data = {
-#                 "view_type": "Crear",
-#                 "forms": forms,
-#             }
-#             return render(
-#                 request,
-#                 "employees/employee_form.html",
-#                 data,
-#             )
-
-#     # ! This approach is close to work but i don't like it
-#     # def post(self, request, *args, **kwargs):
-#     #     print("POST")
-#     #     personal_information_form = PersonalInformationForm(request.POST)
-#     #     contact_information_form = ContactInformationForm(request.POST)
-#     #     emergency_contact_form = EmergencyContactForm(request.POST)
-#     #     education_form = EducationForm(request.POST)
-#     #     employment_details_form = EmploymentDetailsForm(request.POST)
-#     #     termination_details_form = TerminationDetailsForm(request.POST)
-
-#     #     if (
-#     #         personal_information_form.is_valid()
-#     #         and contact_information_form.is_valid()
-#     #         and emergency_contact_form.is_valid()
-#     #         and education_form.is_valid()
-#     #         and employment_details_form.is_valid()
-#     #         and termination_details_form.is_valid()
-#     #     ):
-#     #         personal_information = personal_information_form.save()
-#     #         contact_information = contact_information_form.save()
-#     #         emergency_contact = emergency_contact_form.save()
-#     #         education = education_form.save()
-#     #         employment_details = employment_details_form.save()
-#     #         termination_details = termination_details_form.save()
-
-#     #         employee = Employee(
-#     #             personal_info=personal_information,
-#     #             contact_info=contact_information,
-#     #             emergency_contact=emergency_contact,
-#     #             education=education,
-#     #             employment_details=employment_details,
-#     #             termination_details=termination_details,
-#     #         )
-#     #         employee.save()
-#     #         return redirect("employees-list")
-#     #     else:
-#     #         print(personal_information_form.errors)
-#     #         print(contact_information_form.errors)
-#     #         print(emergency_contact_form.errors)
-#     #         print(education_form.errors)
-#     #         print(employment_details_form.errors)
-#     #         print(termination_details_form.errors)
-#     #         return render(
-#     #             request,
-#     #             "employees/employee_form.html",
-#     #             {
-#     #                 "view_type": "Crear",
-#     #                 "form": EmployeeForm(),
-#     #                 "personal_information_form": personal_information_form,
-#     #                 "contact_information_form": contact_information_form,
-#     #                 "emergency_contact_form": emergency_contact_form,
-#     #                 "education_form": education_form,
-#     #                 "employment_details_form": employment_details_form,
-#     #                 "termination_details_form": termination_details_form,
-#     #             },
-#     #         )
-
-from django.shortcuts import redirect, render
-
-
 def create_employee(request):
     if request.method == "POST":
         # Instantiate all forms with POST data
@@ -812,9 +698,9 @@ def create_employee(request):
             employee.education = education
             employee.employment_details = employment_details
             employee.termination_details = termination_details
+            print(employee.status)
             employee.save()
             print(employee.status)
-
             return redirect("employees-list")
         else:
             print("Hubo un error")

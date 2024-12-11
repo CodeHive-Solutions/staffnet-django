@@ -147,5 +147,10 @@ class DocumentType(TextChoices):
 
 
 class Gender(TextChoices):
-    MASCULINO = "M", "Masculino"
-    FEMENINO = "F", "Femenino"
+    MALE = "M", "Masculino"
+    FEMALE = "F", "Femenino"
+
+
+class TerminationType(TextChoices):
+    VOLUNTARY = "VOLUNTARIA", "Voluntaria"
+    INVOLUNTARY = "INVOLUNTARIA", "Involuntaria"

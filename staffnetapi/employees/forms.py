@@ -48,11 +48,11 @@ class PersonalInformationForm(forms.ModelForm):
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
-            if isinstance(field.widget, forms.TextInput) or isinstance(
-                field.widget, forms.NumberInput
-            ):
-                field.widget.attrs["autocomplete"] = "off"
-                field.widget.attrs["autofill"] = "off"
+            # if isinstance(field.widget, forms.TextInput) or isinstance(
+            #     field.widget, forms.NumberInput
+            # ):
+            #     field.widget.attrs["autocomplete"] = "off"
+            #     field.widget.attrs["autofill"] = "off"
             field.widget.attrs["placeholder"] = placeholder
 
 

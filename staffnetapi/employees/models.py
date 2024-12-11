@@ -6,6 +6,7 @@ from django.core.validators import (
     MaxValueValidator,
     MinLengthValidator,
     MinValueValidator,
+    RegexValidator,
 )
 from django.db import models
 from PIL import Image
@@ -21,6 +22,7 @@ from .choices import (
     Rh,
     ShirtSize,
     TerminationReason,
+    TerminationType,
 )
 from .utilities import user_photo_path
 
@@ -69,12 +71,12 @@ class PersonalInformation(models.Model):
         max_length=100, verbose_name="Lugar de Expedición"
     )
     expedition_date = models.DateField(verbose_name="Fecha de Expedición")
-    gender = UpperCharField(
+    gender = models.CharField(
         max_length=1,
         choices=Gender.choices,
         verbose_name="Género",
     )
-    rh = UpperCharField(
+    rh = models.CharField(
         max_length=3, choices=Rh.choices, verbose_name="RH", default=Rh.O_POSITIVE
     )
     civil_status = UpperCharField(
@@ -84,10 +86,12 @@ class PersonalInformation(models.Model):
         default=CivilStatus.SINGLE,
     )
     sons = models.PositiveIntegerField(
-        verbose_name="Número de Hijos", validators=[MinValueValidator(0)]
+        verbose_name="Número de Hijos",
+        validators=[MinValueValidator(0), MaxValueValidator(20)],
     )
     responsible_persons = models.PositiveIntegerField(
-        verbose_name="Personas a Cargo", validators=[MinValueValidator(0)]
+        verbose_name="Personas a Cargo",
+        validators=[MinValueValidator(0), MaxValueValidator(20)],
     )
     stratum = models.PositiveIntegerField(
         verbose_name="Estrato", validators=[MinValueValidator(0), MaxValueValidator(6)]
@@ -152,13 +156,23 @@ class ContactInformation(models.Model):
         null=True,
         blank=True,
         max_length=15,
-        validators=[MinLengthValidator(7)],
+        validators=[
+            MinLengthValidator(7),
+        ],
     )
-    cell_phone = UpperCharField(
-        verbose_name="Celular", max_length=15, validators=[MinLengthValidator(10)]
+    cell_phone = models.CharField(
+        verbose_name="Celular",
+        max_length=15,
+        validators=[
+            RegexValidator(r"^\+(\d{11,14})$|^3\d{9}$", "Número celular inválido."),
+        ],
     )
     email = UpperEmailField(
-        unique=True, verbose_name="Correo Electrónico", null=True, db_index=True
+        unique=True,
+        verbose_name="Correo Electrónico",
+        null=True,
+        blank=True,
+        db_index=True,
     )
     corporate_email = UpperEmailField(
         unique=True,
@@ -317,7 +331,7 @@ class TerminationDetails(models.Model):
     )
     termination_type = UpperCharField(
         max_length=100,
-        choices=(("VOLUNTARIA", "Voluntaria"), ("INVOLUNTARIA", "Involuntaria")),
+        choices=TerminationType.choices,
         verbose_name="Tipo de Terminación",
         null=True,
         blank=True,
