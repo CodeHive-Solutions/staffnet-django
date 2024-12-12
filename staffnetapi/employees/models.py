@@ -85,27 +85,27 @@ class PersonalInformation(models.Model):
         verbose_name="Estado Civil",
         default=CivilStatus.SINGLE,
     )
-    sons = models.PositiveIntegerField(
+    sons = models.PositiveSmallIntegerField(
         verbose_name="Número de Hijos",
         validators=[MinValueValidator(0), MaxValueValidator(20)],
     )
-    responsible_persons = models.PositiveIntegerField(
+    responsible_persons = models.PositiveSmallIntegerField(
         verbose_name="Personas a Cargo",
         validators=[MinValueValidator(0), MaxValueValidator(20)],
     )
-    stratum = models.PositiveIntegerField(
+    stratum = models.PositiveSmallIntegerField(
         verbose_name="Estrato", validators=[MinValueValidator(0), MaxValueValidator(6)]
     )
     shirt_size = UpperCharField(
         max_length=4, choices=ShirtSize.choices, verbose_name="Talla de Camisa"
     )
-    pant_size = models.PositiveIntegerField(
-        validators=[MinValueValidator(6), MaxValueValidator(50)],
+    pant_size = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(6)],
         verbose_name="Talla de Pantalón",
         null=True,
         blank=True,
     )
-    shoe_size = models.PositiveIntegerField(
+    shoe_size = models.PositiveSmallIntegerField(
         verbose_name="Talla de Zapato", validators=[MinValueValidator(20)]
     )
 
