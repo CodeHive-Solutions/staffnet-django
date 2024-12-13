@@ -8,7 +8,8 @@ from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.views import View
+from django.views.generic import DetailView, ListView, UpdateView
 
 from administration.models import *
 from employees.forms import (
@@ -335,260 +336,6 @@ def get_employees_from_db(request):
     return JsonResponse({"message": "Employees saved to the database."})
 
 
-# def get_employees_from_db(request):
-#     """Gets the employees from the external API."""
-#     # First delete all records from the models
-#     Employee.objects.all().delete()
-#     Bank.objects.all().delete()
-#     Campaign.objects.all().delete()
-#     CompensationFund.objects.all().delete()
-#     HealthProvider.objects.all().delete()
-#     Headquarter.objects.all().delete()
-#     JobTitle.objects.all().delete()
-#     Locality.objects.all().delete()
-#     Management.objects.all().delete()
-#     PensionFund.objects.all().delete()
-#     SavingFund.objects.all().delete()
-#     # Set the cookie token
-#     cookie_token = "7ca6b0de-2d43-4ab9-967b-01ffdabbb4d8"
-#     # set the cookie
-#     request.COOKIES["StaffNet"] = cookie_token
-#     # Request the employees from the external API using the cookie token
-#     response = requests.post(
-#         "https://staffnet-api.cyc-bpo.com/search_employees",
-#         cookies=request.COOKIES,
-#     )
-#     employees = response.json()
-#     if employees.get("error"):
-#         return JsonResponse({"error": employees["error"]}, status=500)
-#     employees_batch = []
-#     # Save the employees to the database
-#     for employee_data in employees["info"]["data"]:
-
-#     # Set some columns in None if they are empty
-#     for key in employee_data:
-#         key = key.lower()
-#         employee_data[key] = (
-#             employee_data[key].strip()
-#             if employee_data[key] and type(employee_data[key]) == str
-#             else employee_data[key]
-#         )
-#         if (
-#             not employee_data[key]
-#             or employee_data[key] == "null"
-#             or employee_data[key] == ""
-#         ):
-#             employee_data[key] = None
-#         if key == "parentesco" and employee_data[key] == "HERMANO (A)":
-#             employee_data[key] = "HERMANO(A)"
-#         elif key == "correo" and employee_data[key] == "#N/D":
-#             employee_data[key] = None
-#         elif key == "tel_contacto" and employee_data[key]:
-#             if "-" in employee_data[key]:
-#                 employee_data[key] = employee_data[key].split("-")[1].strip()
-#             elif "//" in employee_data[key]:
-#                 employee_data[key] = employee_data[key].split("//")[1].strip()
-#             elif employee_data[key] == "320896082EVELIN M2":
-#                 employee_data[key] = "320896082"
-#         elif key == "celular" and employee_data[key]:
-#             if "-" in employee_data[key]:
-#                 employee_data[key] = employee_data[key].split("-")[1].strip()
-#             elif "/" in employee_data[key]:
-#                 employee_data[key] = employee_data[key].split("/")[1].strip()
-#     if (
-#         employee_data["correo"] == "PABLO.CASTANEDA@CYC-BPO.COM"
-#         and employee_data["correo_corporativo"] == "YARIME.GIRALDO@CYC-BPO.COM"
-#     ):
-#         employee_data["correo"] = "PABLO.CASTANEDA+2@CYC-BPO.COM"
-#     elif (
-#         employee_data["correo"] == "YINETHROMERO0705@GMAIL.COM"
-#         and employee_data["nombres"] == "LAURA VALENTINA"
-#     ):
-#         employee_data["correo"] = "YINETHROMERO0705+LAURA@GMAIL.COM"
-#     elif (
-#         employee_data["correo"] == "CARITO8827@HOTMAIL.COM"
-#         and employee_data["apellidos"] == "MORALES VALDES"
-#     ):
-#         employee_data["correo"] = "CARITO8827+ERIKA@HOTMAIL.COM"
-#     elif (
-#         employee_data["correo"] == "LIYI0311@HOTMAIL.COM"
-#         and employee_data["nombres"] == "ZULEY NATALIA"
-#     ):
-#         employee_data["correo"] = "LIYI0311+ZULEY@HOTMAIL.COM"
-#     if (
-#         employee_data["usuario_windows"]
-#         and employee_data["usuario_windows"].lower() == "no"
-#     ):
-#         employee_data["usuario_windows"] = None
-#     elif (
-#         employee_data["usuario_windows"]
-#         and employee_data["usuario_windows"].lower() == "daniel.ramirez"
-#         and employee_data["cedula"] == 1012328078
-#     ):
-#         employee_data["usuario_windows"] = None
-#     if (
-#         employee_data["memorando_1"]
-#         and employee_data["memorando_1"].lower() == "#N/D"
-#     ):
-#         employee_data["memorando_1"] = None
-#     if (
-#         employee_data["memorando_2"]
-#         and employee_data["memorando_2"].lower() == "#N/D"
-#     ):
-#         employee_data["memorando_2"] = None
-#     if (
-#         employee_data["memorando_3"]
-#         and employee_data["memorando_3"].lower() == "#N/D"
-#     ):
-#         employee_data["memorando_3"] = None
-#     if employee_data["fecha_nombramiento_legado"] == "#N/D":
-#         employee_data["fecha_nombramiento_legado"] = None
-#     if employee_data["campana_general"] == "YANBAL - VILLAVICENCIO":
-#         employee_data["campana_general"] = "YANBAL VILLAVICENCIO"
-#     elif (
-#         employee_data["campana_general"]
-#         and employee_data["campana_general"] == "PAY U"
-#         or employee_data["campana_general"] == "PAY-U"
-#     ):
-#         employee_data["campana_general"] = "PAYU"
-#     if employee_data["caja_compensacion"] == "N/A":
-#         employee_data["caja_compensacion"] = "No especificada"
-#     if employee_data["eps"] == "ECOOPOS EPS":
-#         employee_data["eps"] = "ECOOPSOS EPS"
-#     elif employee_data["eps"] == "MEDIMAS":
-#         employee_data["eps"] = "MEDIMAS EPS"
-#     if employee_data["cargo"] == "DIRECTOR(A) DE INVESTIGACION":
-#         employee_data["cargo"] = "DIRECTOR(A) DE INVESTIGACIONES"
-#     if employee_data["pension"] == "N/A":
-#         employee_data["pension"] = "No especificada"
-#     if employee_data["cesantias"] == "N/A":
-#         employee_data["cesantias"] = "No especificada"
-#     photo_exists = os.path.exists(
-#         settings.BASE_DIR
-#         / "media"
-#         / f"employees/profile_pictures/{employee_data['cedula']}.webp"
-#     )
-#     employees_batch.append(
-#         Employee(
-#             identification=int(employee_data["cedula"]),
-#             last_name=employee_data["apellidos"],
-#             first_name=employee_data["nombres"],
-#             document_type=employee_data["tipo_documento"],
-#             birth_date=parse_date(employee_data["fecha_nacimiento"]),
-#             expedition_place=employee_data["lugar_expedicion"] or "No especificado",
-#             expedition_date=parse_date(
-#                 # ! Delete after testing
-#                 employee_data["fecha_expedicion"]
-#                 or "Mon, 01 Jan 1900 00:00:00 GMT"
-#             ),
-#             gender="M" if employee_data["genero"] == "MASCULINO" else "F",
-#             rh=employee_data["rh"] or "O+",
-#             civil_status=employee_data["estado_civil"],
-#             sons=employee_data["hijos"] or 0,
-#             responsible_persons=employee_data["personas_a_cargo"] or 0,
-#             stratum=employee_data["estrato"] or 2,
-#             fixed_phone=employee_data["tel_fijo"],
-#             cell_phone=employee_data["celular"] or 0,
-#             email=employee_data["correo"],
-#             corporate_email=employee_data["correo_corporativo"],
-#             address=employee_data["direccion"] or "No especificada",
-#             neighborhood=employee_data["barrio"] or "No especificado",
-#             locality=Locality.objects.get_or_create(
-#                 name=employee_data["localidad"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             emergency_contact=employee_data["contacto_emergencia"]
-#             or "No especificado",
-#             emergency_relationship=employee_data["parentesco"] or "OTRO",
-#             emergency_phone=employee_data["tel_contacto"] or "No especificado",
-#             education_level=employee_data["nivel_escolaridad"],
-#             title=employee_data["profesion"],
-#             ongoing_studies=bool(employee_data["estudios_en_curso"]),
-#             affiliation_date=parse_date(
-#                 employee_data["fecha_afiliacion_eps"]
-#                 or employee_data["fecha_ingreso"]
-#             ),
-#             health_provider=HealthProvider.objects.get_or_create(
-#                 name=employee_data["eps"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             legacy_health_provider=employee_data["cambio_eps_legado"],
-#             pension_fund=PensionFund.objects.get_or_create(
-#                 name=employee_data["pension"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             compensation_fund=CompensationFund.objects.get_or_create(
-#                 name=employee_data["caja_compensacion"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             saving_fund=SavingFund.objects.get_or_create(
-#                 name=employee_data["cesantias"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             payroll_account=employee_data["cuenta_nomina"] or 0,
-#             bank=Bank.objects.get_or_create(
-#                 name=employee_data["banco"] or "BANCO CAJA SOCIAL"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             headquarter=Headquarter.objects.get_or_create(
-#                 name=employee_data["sede"] or "No especificada"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             job_title=JobTitle.objects.get_or_create(name=employee_data["cargo"])[
-#                 0
-#             ],  # Fetching from database
-#             appointment_date=(
-#                 parse_date(employee_data["fecha_nombramiento"])
-#                 if employee_data["fecha_nombramiento"]
-#                 else None
-#             ),
-#             legacy_appointment_date=(employee_data["fecha_nombramiento_legado"]),
-#             management=Management.objects.get_or_create(
-#                 name=employee_data["gerencia"] or "BANCO AGRARIO"
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             campaign=Campaign.objects.get_or_create(
-#                 name=employee_data["campana_general"]
-#             )[
-#                 0
-#             ],  # Fetching from database
-#             business_area=employee_data["area_negocio"],
-#             contract_type=employee_data["tipo_contrato"] or "OBRA O LABOR",
-#             entry_date=parse_date(employee_data["fecha_ingreso"]),
-#             salary=employee_data["salario"],
-#             transportation_allowance=employee_data["subsidio_transporte"] or 0,
-#             remote_work=bool(employee_data["aplica_teletrabajo"]),
-#             remote_work_application_date=(
-#                 parse_date(employee_data["fecha_aplica_teletrabajo"])
-#                 if employee_data["fecha_aplica_teletrabajo"]
-#                 else None
-#             ),
-#             shirt_size=employee_data.get("talla_camisa"),
-#             pant_size=employee_data.get("talla_pantalon"),
-#             shoe_size=employee_data.get("talla_zapatos"),
-#             windows_user=employee_data.get("usuario_windows"),
-#             memo_1=employee_data.get("memorando_1"),
-#             memo_2=employee_data.get("memorando_2"),
-#             memo_3=employee_data.get("memorando_3"),
-#             photo=(
-#                 f"employees/photos/{employee_data['cedula']}.webp"
-#                 if photo_exists
-#                 else None
-#             ),
-#         )
-#     )
-# Employee.objects.bulk_create(employees_batch)
-# return JsonResponse({"message": "Employees saved to the database."})
-
-
 class EmployeeListView(ListView):
     """Employee list view."""
 
@@ -632,22 +379,6 @@ class EmployeeDetailView(DetailView):
         context["fields"] = model_to_dict(employee)
         return context
 
-
-def employee_update_view(request, employee_id):
-    employee = get_object_or_404(Employee, id=employee_id)
-    if request.method == "POST":
-        form = EmployeeForm(request.POST, instance=employee)
-        if form.is_valid():
-            form.save()
-            return redirect("employees-list")
-    else:
-        form = EmployeeForm(instance=employee)
-
-    return render(
-        request, "employees/employee_update.html", {"form": form, "employee": employee}
-    )
-
-
 class EmployeeUpdateView(UpdateView):
     model = Employee
     form_class = EmployeeForm
@@ -661,77 +392,56 @@ class EmployeeUpdateView(UpdateView):
         return context
 
 
-def create_employee(request):
-    if request.method == "POST":
-        # Instantiate all forms with POST data
-        employee_form = EmployeeForm(request.POST)
-        personal_info_form = PersonalInformationForm(request.POST, request.FILES)
-        contact_info_form = ContactInformationForm(request.POST)
-        emergency_contact_form = EmergencyContactForm(request.POST)
-        education_form = EducationForm(request.POST)
-        employment_details_form = EmploymentDetailsForm(request.POST)
-        termination_details_form = TerminationDetailsForm(request.POST)
+class CreateEmployeeView(View):
+    template_name = "employees/employee_form.html"
 
-        if (
-            employee_form.is_valid()
-            and personal_info_form.is_valid()
-            and contact_info_form.is_valid()
-            and emergency_contact_form.is_valid()
-            and education_form.is_valid()
-            and employment_details_form.is_valid()
-            and termination_details_form.is_valid()
-        ):
-            print("Exitoso")
-            # Save the Employee and related models
-            employee = employee_form.save(commit=False)
-            personal_info = personal_info_form.save()
-            contact_info = contact_info_form.save()
-            emergency_contact = emergency_contact_form.save()
-            education = education_form.save()
-            employment_details = employment_details_form.save()
-            termination_details = termination_details_form.save()
+    def get_forms(self):
+        """Helper method to instantiate forms."""
+        return {
+            "employee_form": EmployeeForm(),
+            "personal_info_form": PersonalInformationForm(),
+            "contact_info_form": ContactInformationForm(),
+            "emergency_contact_form": EmergencyContactForm(),
+            "education_form": EducationForm(),
+            "employment_details_form": EmploymentDetailsForm(),
+            "termination_details_form": TerminationDetailsForm(),
+        }
 
-            # Set relationships
-            employee.personal_info = personal_info
-            employee.contact_info = contact_info
-            employee.emergency_contact = emergency_contact
-            employee.education = education
-            employee.employment_details = employment_details
-            employee.termination_details = termination_details
-            print(employee.status)
+    def post_forms(self, data, files):
+        """Helper method to instantiate forms with POST data."""
+        return {
+            "employee_form": EmployeeForm(data),
+            "personal_info_form": PersonalInformationForm(data, files),
+            "contact_info_form": ContactInformationForm(data),
+            "emergency_contact_form": EmergencyContactForm(data),
+            "education_form": EducationForm(data),
+            "employment_details_form": EmploymentDetailsForm(data),
+            "termination_details_form": TerminationDetailsForm(data),
+        }
+
+    def get(self, request, *args, **kwargs):
+        forms = self.get_forms()
+        return render(request, self.template_name, {**forms, "view_type": "Crear"})
+
+    def post(self, request, *args, **kwargs):
+        forms = self.post_forms(request.POST, request.FILES)
+
+        # Check if all forms are valid
+        if all(form.is_valid() for form in forms.values()):
+            # Save forms and set relationships
+            employee = forms["employee_form"].save(commit=False)
+            employee.personal_info = forms["personal_info_form"].save()
+            employee.contact_info = forms["contact_info_form"].save()
+            employee.emergency_contact = forms["emergency_contact_form"].save()
+            employee.education = forms["education_form"].save()
+            employee.employment_details = forms["employment_details_form"].save()
+            employee.termination_details = forms["termination_details_form"].save()
+            employee.status = True  # Active by default
             employee.save()
-            print(employee.status)
             return redirect("employees-list")
         else:
-            print("Hubo un error")
-            print(employee_form.errors)
-            print(personal_info_form.errors)
-            print(contact_info_form.errors)
-            print(emergency_contact_form.errors)
-            print(education_form.errors)
-            print("empo", employment_details_form.errors)
-            print(termination_details_form.errors)
-    else:
-        # Create empty forms for GET requests
-        employee_form = EmployeeForm()
-        personal_info_form = PersonalInformationForm()
-        contact_info_form = ContactInformationForm()
-        emergency_contact_form = EmergencyContactForm()
-        education_form = EducationForm()
-        employment_details_form = EmploymentDetailsForm()
-        termination_details_form = TerminationDetailsForm()
+            for name, form in forms.items():
+                if not form.is_valid():
+                    print(f"Errors in {name}: {form.errors}")
 
-    return render(
-        request,
-        "employees/employee_form.html",
-        {
-            "employee_form": employee_form,
-            "personal_info_form": personal_info_form,
-            "contact_info_form": contact_info_form,
-            "emergency_contact_form": emergency_contact_form,
-            "education_form": education_form,
-            "employment_details_form": employment_details_form,
-            "termination_details_form": termination_details_form,
-            "view_type": "Crear",
-        },
-    )
+        return render(request, self.template_name, {**forms, "view_type": "Crear"})

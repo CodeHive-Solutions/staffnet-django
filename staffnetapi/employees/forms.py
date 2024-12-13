@@ -1,7 +1,28 @@
-from collections import OrderedDict
 from datetime import datetime, timedelta
 
 from django import forms
+from django.conf import settings
+
+from administration.models import (
+    Bank,
+    Campaign,
+    CompensationFund,
+    Headquarter,
+    HealthProvider,
+    JobTitle,
+    Locality,
+    Management,
+    PensionFund,
+    SavingFund,
+)
+from employees.factories import (
+    ContactInformationFactory,
+    EducationFactory,
+    EmergencyContactFactory,
+    EmploymentDetailsFactory,
+    PersonalInformationFactory,
+    TerminationDetailsFactory,
+)
 
 from .models import (
     ContactInformation,
@@ -31,6 +52,8 @@ calendar_today_max_attrs = {
     "datepicker-max-date": datetime.now().strftime("%d-%m-%Y"),
 }
 
+DEBUG = settings.DEBUG
+
 
 class PersonalInformationForm(forms.ModelForm):
     class Meta:
@@ -43,17 +66,20 @@ class PersonalInformationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        personal_information = PersonalInformationFactory.build()
+        for name, field in self.fields.items():
             if field.label and field.label.endswith("s") and "Hijos" not in field.label:
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
-            # if isinstance(field.widget, forms.TextInput) or isinstance(
-            #     field.widget, forms.NumberInput
-            # ):
-            #     field.widget.attrs["autocomplete"] = "off"
-            #     field.widget.attrs["autofill"] = "off"
+            if isinstance(field.widget, forms.TextInput) or isinstance(
+                field.widget, forms.NumberInput
+            ):
+                field.widget.attrs["autocomplete"] = "off"
+                field.widget.attrs["autofill"] = "off"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(personal_information, name)
 
 
 class ContactInformationForm(forms.ModelForm):
@@ -63,12 +89,18 @@ class ContactInformationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        if DEBUG:
+            locality = Locality.objects.first()
+            contact_information = ContactInformationFactory.build(locality=locality)
+
+        for name, field in self.fields.items():
             if field.label and field.label.endswith("s"):
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(contact_information, name)
 
 
 class EmergencyContactForm(forms.ModelForm):
@@ -78,12 +110,15 @@ class EmergencyContactForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        emergency_contact = EmergencyContactFactory.build()
+        for name, field in self.fields.items():
             if field.label and field.label.endswith("s"):
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue el {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(emergency_contact, name)
 
 
 class EducationForm(forms.ModelForm):
@@ -93,12 +128,15 @@ class EducationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        education = EducationFactory.build()
+        for name, field in self.fields.items():
             if field.label and field.label.endswith("s"):
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(education, name)
 
 
 class EmploymentDetailsForm(forms.ModelForm):
@@ -117,7 +155,28 @@ class EmploymentDetailsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        if DEBUG:
+            bank = Bank.objects.first()
+            campaign = Campaign.objects.first()
+            compensation_fund = CompensationFund.objects.first()
+            health_provider = HealthProvider.objects.first()
+            headquarter = Headquarter.objects.first()
+            job_title = JobTitle.objects.first()
+            management = Management.objects.first()
+            pension_fund = PensionFund.objects.first()
+            saving_fund = SavingFund.objects.first()
+            employment_details = EmploymentDetailsFactory.build(
+                bank=bank,
+                campaign=campaign,
+                compensation_fund=compensation_fund,
+                health_provider=health_provider,
+                headquarter=headquarter,
+                job_title=job_title,
+                management=management,
+                pension_fund=pension_fund,
+                saving_fund=saving_fund,
+            )
+        for name, field in self.fields.items():
             if (
                 field.label
                 and field.label.endswith("s")
@@ -127,6 +186,8 @@ class EmploymentDetailsForm(forms.ModelForm):
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(employment_details, name)
 
 
 class TerminationDetailsForm(forms.ModelForm):
@@ -136,12 +197,15 @@ class TerminationDetailsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for _, field in self.fields.items():
+        termination_details = TerminationDetailsFactory.build()
+        for name, field in self.fields.items():
             if field.label and field.label.endswith("s"):
                 placeholder = f"Agregue sus {str(field.label).lower()}"
             else:
                 placeholder = f"Agregue su {str(field.label).lower()}"
             field.widget.attrs["placeholder"] = placeholder
+            if DEBUG:
+                self.fields[name].initial = getattr(termination_details, name)
 
 
 class EmployeeForm(forms.ModelForm):

@@ -1,5 +1,6 @@
 # factories.py
 import factory
+from faker import Faker
 
 from administration.factories import (
     BankFactory,
@@ -39,14 +40,20 @@ from .models import (
 from .utilities import get_choices_values
 
 
+# Set faker to Spanish
+faker = Faker("es_CO")
+
+
 class PersonalInformationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = PersonalInformation
 
     photo = factory.django.ImageField()
     identification = factory.Faker("numerify", text="1#########")
-    last_name = factory.Faker("last_name")
-    first_name = factory.Faker("first_name")
+    last_name = factory.LazyFunction(lambda: "Test_" + faker.last_name())
+    first_name = factory.LazyFunction(lambda: "Test_" + faker.first_name())
+    # last_name = factory.Faker("last_name")
+    # first_name = factory.Faker("first_name")
     document_type = factory.Faker("random_element", elements=["CC", "CE", "TI"])
     birth_date = factory.Faker("date_of_birth", minimum_age=18, maximum_age=65)
     expedition_place = factory.Faker("city")
@@ -69,8 +76,8 @@ class PersonalInformationFactory(factory.django.DjangoModelFactory):
         "random_element",
         elements=get_choices_values(ShirtSize.choices),
     )
-    pant_size = factory.Faker("numerify", text="##")
-    shoe_size = factory.Faker("numerify", text="##")
+    pant_size = factory.Faker("random_int", min=6, max=44)
+    shoe_size = factory.Faker("random_int", min=20, max=45)
 
 
 class ContactInformationFactory(factory.django.DjangoModelFactory):
@@ -81,7 +88,7 @@ class ContactInformationFactory(factory.django.DjangoModelFactory):
     neighborhood = factory.Faker("secondary_address")
     locality = factory.SubFactory(LocalityFactory)
     fixed_phone = factory.Faker("numerify", text="#######")
-    cell_phone = factory.Faker("numerify", text="##########")
+    cell_phone = factory.Faker("numerify", text="3#########")
     email = factory.Faker("email")
     corporate_email = factory.Faker("email")
 
