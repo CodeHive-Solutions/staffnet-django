@@ -1,0 +1,20 @@
+<form method="post">
+    {% csrf_token %}
+    
+    {{ personal_information_form.as_p }}
+
+    {{ contact_information_form.as_p }}
+
+    {{ emergency_contact_form.as_p }}
+
+    {{ education_form.as_p }}
+
+    {{ employment_details_form.as_p }}
+
+    {{ termination_details_form.as_p }}
+
+    <!-- The relationship (UserProject) form is invisible, so we don't render it here -->
+    
+
+    <button type="submit">Submit All</button>
+</form>

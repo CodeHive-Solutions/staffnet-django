@@ -1,6 +1,10 @@
 {
     "python.analysis.typeCheckingMode": "basic",
+    "material-icon-theme.folders.associations": {
+        "collected_static": "resource",
+        "administration": "admin",
+    },
     "cSpell.words": [
-        "staffnetapi"
+        "bothify"
     ]
 }
