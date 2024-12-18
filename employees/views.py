@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-# import requests 
+# import requests
 from django.conf import settings
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -379,6 +379,7 @@ class EmployeeDetailView(DetailView):
         employee = self.get_object()
         context["fields"] = model_to_dict(employee)
         return context
+
 
 class EmployeeUpdateView(UpdateView):
     model = Employee
