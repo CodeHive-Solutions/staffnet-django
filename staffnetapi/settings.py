@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     "employees",
     "custom_user",
     "django.contrib.admin",
-    "test_app",
 ]
 
 

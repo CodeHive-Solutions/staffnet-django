@@ -12,25 +12,14 @@ from django.views import View
 from django.views.generic import DetailView, ListView, UpdateView
 
 from administration.models import *
-from employees.forms import (
-    ContactInformationForm,
-    EducationForm,
-    EmergencyContactForm,
-    EmployeeForm,
-    EmploymentDetailsForm,
-    PersonalInformationForm,
-    TerminationDetailsForm,
-)
+from employees.forms import (ContactInformationForm, EducationForm,
+                             EmergencyContactForm, EmployeeForm,
+                             EmploymentDetailsForm, PersonalInformationForm,
+                             TerminationDetailsForm)
 
-from .models import (
-    ContactInformation,
-    Education,
-    EmergencyContact,
-    Employee,
-    EmploymentDetails,
-    PersonalInformation,
-    TerminationDetails,
-)
+from .models import (ContactInformation, Education, EmergencyContact, Employee,
+                     EmploymentDetails, PersonalInformation,
+                     TerminationDetails)
 
 
 def parse_date(date_str):
@@ -381,19 +370,6 @@ class EmployeeDetailView(DetailView):
         return context
 
 
-class EmployeeUpdateView(UpdateView):
-    model = Employee
-    form_class = EmployeeForm
-    success_url = reverse_lazy("employee_list")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["view_type"] = "Update"
-        context["button_label"] = "Update"
-
-        return context
-
-
 class CreateEmployeeView(View):
     template_name = "employees/employee_form.html"
 
@@ -447,3 +423,65 @@ class CreateEmployeeView(View):
                     print(f"Errors in {name}: {form.errors}")
 
         return render(request, self.template_name, {**forms, "view_type": "Crear"})
+
+
+class UpdateEmployeeView(View):
+    template_name = "employees/employee_form.html"
+
+    def get_forms(self, employee):
+        """Helper method to instantiate forms."""
+        return {
+            "employee_form": EmployeeForm(instance=employee),
+            "personal_info_form": PersonalInformationForm(instance=employee.personal_info),
+            "contact_info_form": ContactInformationForm(instance=employee.contact_info),
+            "emergency_contact_form": EmergencyContactForm(
+                instance=employee.emergency_contact
+            ),
+            "education_form": EducationForm(instance=employee.education),
+            "employment_details_form": EmploymentDetailsForm(
+                instance=employee.employment_details
+            ),
+            "termination_details_form": TerminationDetailsForm(
+                instance=employee.termination_details
+            ),
+        }
+
+    def post_forms(self, data, files, employee):
+        """Helper method to instantiate forms with POST data."""
+        return {
+            "employee_form": EmployeeForm(data, instance=employee),
+            "personal_info_form": PersonalInformationForm(data, files, instance=employee.personal_info),
+            "contact_info_form": ContactInformationForm(data, instance=employee.contact_info),
+            "emergency_contact_form": EmergencyContactForm(data, instance=employee.emergency_contact),
+            "education_form": EducationForm(data, instance=employee.education),
+            "employment_details_form": EmploymentDetailsForm(data, instance=employee.employment_details),
+            "termination_details_form": TerminationDetailsForm(data, instance=employee.termination_details),
+        }
+
+    def get(self, request, pk, *args, **kwargs):
+        employee = get_object_or_404(Employee, pk=pk)
+        forms = self.get_forms(employee)
+        return render(request, self.template_name, {**forms, "view_type": "Editar"})
+
+    def post(self, request, pk, *args, **kwargs):
+        employee = get_object_or_404(Employee, pk=pk)
+        forms = self.post_forms(request.POST, request.FILES, employee)
+
+        # Check if all forms are valid
+        if all(form.is_valid() for form in forms.values()):
+            # Save forms and set relationships
+            employee = forms["employee_form"].save(commit=False)
+            employee.personal_info = forms["personal_info_form"].save()
+            employee.contact_info = forms["contact_info_form"].save()
+            employee.emergency_contact = forms["emergency_contact_form"].save()
+            employee.education = forms["education_form"].save()
+            employee.employment_details = forms["employment_details_form"].save()
+            employee.termination_details = forms["termination_details_form"].save()
+            employee.save()
+            return redirect("employees-list")
+        else:
+            for name, form in forms.items():
+                if not form.is_valid():
+                    print(f"Errors in {name}: {form.errors}")
+
+        return render(request, self.template_name, {**forms, "view_type": "Editar"})
