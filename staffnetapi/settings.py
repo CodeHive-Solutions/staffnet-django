@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -44,10 +45,11 @@ def str_to_bool(value: str) -> bool:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = str_to_bool(os.environ["DEBUG"])
 
+# Check if a test is being run
+TESTING = "test" in sys.argv
+
+
 ALLOWED_HOSTS = [host.strip() for host in os.environ["ALLOWED_HOSTS"].split(",")]
-
-# ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "django_auth_ldap",
     "administration",
     "employees",
@@ -73,7 +76,16 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
+# if not TESTING and DEBUG:
+#     INTERNAL_IPS = ["172.16.0.115"]
+#     MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+#     INSTALLED_APPS = [
+#         "debug_toolbar",
+#     ] + INSTALLED_APPS
+
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
@@ -169,22 +181,22 @@ AUTH_LDAP_BIND_PASSWORD = os.environ["AdminLDAPPassword"]
 AUTH_LDAP_USER_SEARCH = LDAPSearchUnion(
     LDAPSearch(
         "OU=BOGOTA,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
-        ldap.SCOPE_SUBTREE,  # Search scope
+        ldap.SCOPE_SUBTREE,  # type: ignore
         "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
     ),
     LDAPSearch(
         "OU=MEDELLIN,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
-        ldap.SCOPE_SUBTREE,  # Search scope
+        ldap.SCOPE_SUBTREE,  # type: ignore
         "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
     ),
     LDAPSearch(
         "OU=BUCARAMANGA,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
-        ldap.SCOPE_SUBTREE,  # Search scope
+        ldap.SCOPE_SUBTREE,  # type: ignore
         "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
     ),
     LDAPSearch(
         "OU=VILLAVICENCIO,DC=CYC-SERVICES,DC=COM,DC=CO",  # Search base
-        ldap.SCOPE_SUBTREE,  # Search scope
+        ldap.SCOPE_SUBTREE,  # type: ignore
         "(&(objectClass=user)(sAMAccountName=%(user)s))",  # Search filter
     ),
 )
