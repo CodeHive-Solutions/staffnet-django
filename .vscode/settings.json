@@ -3,9 +3,13 @@
     "material-icon-theme.folders.associations": {
         "collected_static": "resource",
         "administration": "admin",
+        // Set resource folder icon to the every folder that contains
+        "static/employees": "resource",
+        "static/administration": "resource",
+        "static/project": "resource",
     },
     "cSpell.words": [
         "bothify",
         "staffnetapi"
-    ]
+    ],
 }

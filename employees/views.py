@@ -1,25 +1,34 @@
 import os
 from datetime import datetime
 
-# import requests
+import requests
 from django.conf import settings
 from django.db.models import Q
-from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic import ListView
 
 from administration.models import *
-from employees.forms import (ContactInformationForm, EducationForm,
-                             EmergencyContactForm, EmployeeForm,
-                             EmploymentDetailsForm, PersonalInformationForm,
-                             TerminationDetailsForm)
+from employees.forms import (
+    ContactInformationForm,
+    EducationForm,
+    EmergencyContactForm,
+    EmployeeForm,
+    EmploymentDetailsForm,
+    PersonalInformationForm,
+    TerminationDetailsForm,
+)
 
-from .models import (ContactInformation, Education, EmergencyContact, Employee,
-                     EmploymentDetails, PersonalInformation,
-                     TerminationDetails)
+from .models import (
+    ContactInformation,
+    Education,
+    EmergencyContact,
+    Employee,
+    EmploymentDetails,
+    PersonalInformation,
+    TerminationDetails,
+)
 
 
 def parse_date(date_str):
@@ -32,10 +41,10 @@ def parse_date(date_str):
     return date_obj.strftime("%Y-%m-%d")
 
 
+# ! Uncomment this function to use it
 def get_employees_from_db(request):
     """Gets employees from an external API and saves them in bulk with related models."""
 
-    pass
     # Clear previous data
     Employee.objects.all().delete()
     PersonalInformation.objects.all().delete()
@@ -56,7 +65,7 @@ def get_employees_from_db(request):
     SavingFund.objects.all().delete()
 
     # Fetch employee data from API
-    cookie_token = "7ca6b0de-2d43-4ab9-967b-01ffdabbb4d8"
+    cookie_token = "a19ea262-8e38-4041-8352-0cada99252b7"
     request.COOKIES["StaffNet"] = cookie_token
     response = requests.post(
         "https://staffnet-api.cyc-bpo.com/search_employees", cookies=request.COOKIES
@@ -64,7 +73,7 @@ def get_employees_from_db(request):
     employees = response.json()
 
     if employees.get("error"):
-        return JsonResponse({"error": employees["error"]}, status=500)
+        return JsonResponse({"StaffNet-old error": employees["error"]}, status=500)
 
     # Prepare lists for bulk insert
     personal_info_list = []
@@ -183,7 +192,11 @@ def get_employees_from_db(request):
 
         # Personal Information
         personal_info = PersonalInformation(
-            # photo=f"employees/profile_pictures/{employee_data['cedula']}.webp"
+            photo=(
+                f"employees/profile_pictures/{employee_data['cedula']}.webp"
+                if photo_exists
+                else None
+            ),
             identification=int(employee_data.get("cedula", 0)),
             last_name=employee_data.get("apellidos"),
             first_name=employee_data.get("nombres"),
@@ -276,9 +289,17 @@ def get_employees_from_db(request):
             entry_date=parse_date(employee_data.get("fecha_ingreso")),
             salary=employee_data.get("salario"),
             transportation_allowance=employee_data.get("subsidio_transporte") or 0,
-            remote_work=bool(employee_data.get("aplica_teletrabajo")),
             remote_work_application_date=parse_date(
-                employee_data.get("fecha_aplica_teletrabajo")
+                "1900-01-01"
+                if employee_data.get("aplica_teletrabajo")
+                and not employee_data.get("fecha_aplica_teletrabajo")
+                else employee_data.get("fecha_aplica_teletrabajo")
+            ),
+            remote_work=bool(
+                True
+                if employee_data.get("fecha_aplica_teletrabajo")
+                or employee_data.get("aplica_teletrabajo")
+                else False
             ),
             windows_user=employee_data.get("usuario_windows"),
         )
@@ -286,25 +307,36 @@ def get_employees_from_db(request):
 
         # Termination Details
         termination_details = TerminationDetails(
-            termination_date=None,
-            termination_type=None,
-            termination_reason=None,
-            rehire_eligibility=True,
+            termination_date=parse_date(employee_data.get("fecha_retiro")),
+            termination_type=employee_data.get("tipo_retiro"),
+            termination_reason=employee_data.get("motivo_retiro"),
+            rehire_eligibility=(
+                # ! Check that this work
+                employee_data.get("aplica_recontratacion")
+                if employee_data.get("aplica_recontratacion") is not None
+                else True
+            ),
         )
         termination_details_list.append(termination_details)
 
     # Can't bulk create related models because they have foreign keys
     for personal_info in personal_info_list:
+        personal_info.clean()
         personal_info.save()
     for contact_info in contact_info_list:
+        contact_info.clean()
         contact_info.save()
     for emergency_contact in emergency_contact_list:
+        emergency_contact.clean()
         emergency_contact.save()
     for education in education_list:
+        education.clean()
         education.save()
     for employment_details in employment_details_list:
+        employment_details.clean()
         employment_details.save()
     for termination_details in termination_details_list:
+        termination_details.clean()
         termination_details.save()
 
     # Retrieve created records and link to Employee
@@ -316,7 +348,7 @@ def get_employees_from_db(request):
             education=education_list[i],
             employment_details=employment_details_list[i],
             termination_details=termination_details_list[i],
-            status=True,
+            status=True if not termination_details_list[i].termination_date else False,
         )
         employees_list.append(employee)
 
@@ -354,20 +386,38 @@ class EmployeeListView(ListView):
         return queryset
 
 
-class EmployeeDetailView(DetailView):
+class EmployeeDetailView(View):
     """Employee detail view."""
 
-    model = Employee
     template_name = "employees/employee_detail.html"
-    context_object_name = "employee"
 
-    def get_context_data(self, **kwargs):
-        """Get the context data."""
-        context = super().get_context_data(**kwargs)
-        context["title"] = "Employee Detail"
-        employee = self.get_object()
-        context["fields"] = model_to_dict(employee)
-        return context
+    def get_forms(self, employee):
+        """Helper method to instantiate forms."""
+        data = {
+            "employee_form": EmployeeForm(instance=employee),
+            "personal_info_form": PersonalInformationForm(
+                instance=employee.personal_info
+            ),
+            "contact_info_form": ContactInformationForm(instance=employee.contact_info),
+            "emergency_contact_form": EmergencyContactForm(
+                instance=employee.emergency_contact
+            ),
+            "education_form": EducationForm(instance=employee.education),
+            "employment_details_form": EmploymentDetailsForm(
+                instance=employee.employment_details
+            ),
+            "termination_details_form": TerminationDetailsForm(
+                instance=employee.termination_details
+            ),
+        }
+        for field_name, field in data["employment_details_form"].fields.items():
+            print(f"{field_name}: {field.initial}")
+        return data
+
+    def get(self, request, pk, *args, **kwargs):
+        employee = get_object_or_404(Employee, pk=pk)
+        forms = self.get_forms(employee)
+        return render(request, self.template_name, {**forms, "employee": employee})
 
 
 class CreateEmployeeView(View):
@@ -425,63 +475,63 @@ class CreateEmployeeView(View):
         return render(request, self.template_name, {**forms, "view_type": "Crear"})
 
 
-class UpdateEmployeeView(View):
-    template_name = "employees/employee_form.html"
+# class UpdateEmployeeView(View):
+#     template_name = "employees/employee_form.html"
 
-    def get_forms(self, employee):
-        """Helper method to instantiate forms."""
-        return {
-            "employee_form": EmployeeForm(instance=employee),
-            "personal_info_form": PersonalInformationForm(instance=employee.personal_info),
-            "contact_info_form": ContactInformationForm(instance=employee.contact_info),
-            "emergency_contact_form": EmergencyContactForm(
-                instance=employee.emergency_contact
-            ),
-            "education_form": EducationForm(instance=employee.education),
-            "employment_details_form": EmploymentDetailsForm(
-                instance=employee.employment_details
-            ),
-            "termination_details_form": TerminationDetailsForm(
-                instance=employee.termination_details
-            ),
-        }
+#     def get_forms(self, employee):
+#         """Helper method to instantiate forms."""
+#         return {
+#             "employee_form": EmployeeForm(instance=employee),
+#             "personal_info_form": PersonalInformationForm(instance=employee.personal_info),
+#             "contact_info_form": ContactInformationForm(instance=employee.contact_info),
+#             "emergency_contact_form": EmergencyContactForm(
+#                 instance=employee.emergency_contact
+#             ),
+#             "education_form": EducationForm(instance=employee.education),
+#             "employment_details_form": EmploymentDetailsForm(
+#                 instance=employee.employment_details
+#             ),
+#             "termination_details_form": TerminationDetailsForm(
+#                 instance=employee.termination_details
+#             ),
+#         }
 
-    def post_forms(self, data, files, employee):
-        """Helper method to instantiate forms with POST data."""
-        return {
-            "employee_form": EmployeeForm(data, instance=employee),
-            "personal_info_form": PersonalInformationForm(data, files, instance=employee.personal_info),
-            "contact_info_form": ContactInformationForm(data, instance=employee.contact_info),
-            "emergency_contact_form": EmergencyContactForm(data, instance=employee.emergency_contact),
-            "education_form": EducationForm(data, instance=employee.education),
-            "employment_details_form": EmploymentDetailsForm(data, instance=employee.employment_details),
-            "termination_details_form": TerminationDetailsForm(data, instance=employee.termination_details),
-        }
+#     def post_forms(self, data, files, employee):
+#         """Helper method to instantiate forms with POST data."""
+#         return {
+#             "employee_form": EmployeeForm(data, instance=employee),
+#             "personal_info_form": PersonalInformationForm(data, files, instance=employee.personal_info),
+#             "contact_info_form": ContactInformationForm(data, instance=employee.contact_info),
+#             "emergency_contact_form": EmergencyContactForm(data, instance=employee.emergency_contact),
+#             "education_form": EducationForm(data, instance=employee.education),
+#             "employment_details_form": EmploymentDetailsForm(data, instance=employee.employment_details),
+#             "termination_details_form": TerminationDetailsForm(data, instance=employee.termination_details),
+#         }
 
-    def get(self, request, pk, *args, **kwargs):
-        employee = get_object_or_404(Employee, pk=pk)
-        forms = self.get_forms(employee)
-        return render(request, self.template_name, {**forms, "view_type": "Editar"})
+#     def get(self, request, pk, *args, **kwargs):
+#         employee = get_object_or_404(Employee, pk=pk)
+#         forms = self.get_forms(employee)
+#         return render(request, self.template_name, {**forms, "view_type": "Editar"})
 
-    def post(self, request, pk, *args, **kwargs):
-        employee = get_object_or_404(Employee, pk=pk)
-        forms = self.post_forms(request.POST, request.FILES, employee)
+#     def post(self, request, pk, *args, **kwargs):
+#         employee = get_object_or_404(Employee, pk=pk)
+#         forms = self.post_forms(request.POST, request.FILES, employee)
 
-        # Check if all forms are valid
-        if all(form.is_valid() for form in forms.values()):
-            # Save forms and set relationships
-            employee = forms["employee_form"].save(commit=False)
-            employee.personal_info = forms["personal_info_form"].save()
-            employee.contact_info = forms["contact_info_form"].save()
-            employee.emergency_contact = forms["emergency_contact_form"].save()
-            employee.education = forms["education_form"].save()
-            employee.employment_details = forms["employment_details_form"].save()
-            employee.termination_details = forms["termination_details_form"].save()
-            employee.save()
-            return redirect("employees-list")
-        else:
-            for name, form in forms.items():
-                if not form.is_valid():
-                    print(f"Errors in {name}: {form.errors}")
+#         # Check if all forms are valid
+#         if all(form.is_valid() for form in forms.values()):
+#             # Save forms and set relationships
+#             employee = forms["employee_form"].save(commit=False)
+#             employee.personal_info = forms["personal_info_form"].save()
+#             employee.contact_info = forms["contact_info_form"].save()
+#             employee.emergency_contact = forms["emergency_contact_form"].save()
+#             employee.education = forms["education_form"].save()
+#             employee.employment_details = forms["employment_details_form"].save()
+#             employee.termination_details = forms["termination_details_form"].save()
+#             employee.save()
+#             return redirect("employees-list")
+#         else:
+#             for name, form in forms.items():
+#                 if not form.is_valid():
+#                     print(f"Errors in {name}: {form.errors}")
 
-        return render(request, self.template_name, {**forms, "view_type": "Editar"})
+#         return render(request, self.template_name, {**forms, "view_type": "Editar"})

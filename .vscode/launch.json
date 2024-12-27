@@ -10,7 +10,8 @@
                 "8020"
             ],
             "django": true,
-            "console": "integratedTerminal",
+            "console": "internalConsole",
+            "justMyCode": true
         }
     ]
 }

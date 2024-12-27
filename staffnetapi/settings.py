@@ -29,10 +29,6 @@ load_dotenv(ENV_PATH)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ["SECRET_KEY"]
 
@@ -59,7 +55,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "debug_toolbar",
     "django_auth_ldap",
     "administration",
     "employees",
@@ -76,15 +71,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-# if not TESTING and DEBUG:
-#     INTERNAL_IPS = ["172.16.0.115"]
-#     MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
-#     INSTALLED_APPS = [
-#         "debug_toolbar",
-#     ] + INSTALLED_APPS
+if not TESTING and DEBUG:
+    INTERNAL_IPS = ["127.0.0.1"]
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+    INSTALLED_APPS = [
+        "debug_toolbar",
+    ] + INSTALLED_APPS
 
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]

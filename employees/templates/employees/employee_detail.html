@@ -1,43 +1,140 @@
 {% extends 'employees/base.html' %}
+{% load static %}
+
+{% load custom_filters %}
+
+{% block title %}
+  {{ view_type }} Empleado
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'employees/css/employee_detail.css' %}" />
+  <script src="{% static 'employees/js/employee_detail.js' %}"></script>
+{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-4 py-5 sm:px-6 bg-gray-50">
-            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                {{ employee.get_full_name }}
-            </h2>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">Employee Details</p>
+  <div class="container mx-auto my-8">
+    <!-- Header Section -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+      <div class="flex items-center space-x-4">
+        <div>
+          {% if employee.personal_info.photo %}
+            <img src="{{ employee.personal_info.photo.url }}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" />
+          {% else %}
+            <img src="{% static 'employees/images/default-avatar.webp' %}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" />
+          {% endif %}
         </div>
-        <div class="border-t border-gray-200">
-            <form method="post" action="{% url 'employee-update' employee.id %}">
-                {% csrf_token %}
-                <dl>
-                    {% for field_name, field_value in fields.items %}
-                    <div class="{% cycle 'bg-gray-50' 'bg-white' %} px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">{{ field_name | title }}</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        {% if field_name == 'photo' and field_value and field_value.url %}
-                            <img src="{{ field_value.url }}" alt="{{ field_name }}" class="h-32 w-32 object-cover">
-                        {% else %}
-                            {{ field_value|default:"Not available" }}
-                        {% endif %}
-                        </dd>
-                    </div>
-                    {% endfor %}
-                </dl>
-                <div class="mt-6 flex justify-center">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Save Changes
-                    </button>
-                </div>
-            </form>
+        <div>
+          <h1 class="text-2xl font-semibold">{{ employee.get_full_name }}</h1>
+          <p class="text-gray-600">{{ employee.employment_details.job_title }}</p>
+          <p class="text-gray-600">{{ employee.employment_details.campaign }}</p>
         </div>
+      </div>
     </div>
-    <div class="mt-6 flex justify-center">
-        <a href="{% url 'employees-list' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            Back to Employee List
-        </a>
+
+    <!-- Tab Navigation -->
+    <div class="bg-gray-50 shadow-md rounded-lg p-4">
+      <ul class="flex space-x-4 text-sm font-medium text-center border-b">
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600 active-tab" data-target="#personal-info">Información personal</button>
+        </li>
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#contact-info">Contacto</button>
+        </li>
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#emergency-contact">Contacto de emergencia</button>
+        </li>
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#education">Educación</button>
+        </li>
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#employment-details">Detalles</button>
+        </li>
+        <li>
+          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#termination-details">Terminación de contrato</button>
+        </li>
+      </ul>
     </div>
-</div>
+
+    <!-- Tab Content -->
+    <div class="bg-white shadow-md rounded-lg mt-4 p-6">
+      <!-- Personal Info -->
+      <div id="personal-info" class="tab-content">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Información personal</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for field in personal_info_form %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div id="contact-info" class="tab-content hidden">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Contacto</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for name, field in contact_info_form.fields.items %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.initial|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Emergency Contact -->
+      <div id="emergency-contact" class="tab-content hidden">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Contacto de emergencia</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for field in emergency_contact_form %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div id="education" class="tab-content hidden">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Educación</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for field in education_form %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Employment Details -->
+      <div id="employment-details" class="tab-content hidden">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Detalles</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for name, field in employment_details_form.fields.items %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.initial|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Termination Details -->
+      <div id="termination-details" class="tab-content hidden">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Termination Details</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for field in termination_details_form %}
+            <div>
+              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+              <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

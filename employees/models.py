@@ -418,8 +418,10 @@ class Employee(models.Model):
         """Access the 'job_title' field from 'EmploymentDetails'."""
         return self.employment_details.job_title
 
+    
     def get_full_name(self) -> str:
         """Return the full name of the employee."""
         if self.personal_last_name:
             return f"{self.personal_first_name} {self.personal_last_name}".title()
         return self.personal_first_name.title()
+
