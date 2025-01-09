@@ -19,7 +19,10 @@
       <div class="flex items-center space-x-4">
         <div>
           {% if employee.personal_info.photo %}
-            <img src="{{ employee.personal_info.photo.url }}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" />
+            <img src="{{ employee.personal_info.photo.url }}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" data-modal-target="default-modal" data-modal-toggle="default-modal" />
+            <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+              <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">HOLAAAAAAAAAA</div>
+            </div>
           {% else %}
             <img src="{% static 'employees/images/default-avatar.webp' %}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" />
           {% endif %}
@@ -63,10 +66,12 @@
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Información personal</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           {% for field in personal_info_form %}
-            <div>
-              <span class="block text-gray-600 font-medium">{{ field.label }}</span>
-              <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
-            </div>
+            {% if field.name != 'photo' %}
+              <div>
+                <span class="block text-gray-600 font-medium">{{ field.label }}</span>
+                <span class="block text-gray-800">{{ field.value|default:'N/A' }}</span>
+              </div>
+            {% endif %}
           {% endfor %}
         </div>
       </div>

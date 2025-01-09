@@ -9,8 +9,7 @@ class ExistingUserLDAPBackend(LDAPBackend):
         try:
             UserModel.objects.get(username=username)
         except UserModel.DoesNotExist:
-            # If user does not exist in the database, skip LDAP and stop authentication
+            # If user does not exist in the database, skip LDAP and return an error
             return None
-        
         # If user exists, proceed with LDAP authentication
         return super().authenticate(request, username=username, password=password, **kwargs)

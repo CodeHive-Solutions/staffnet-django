@@ -3,32 +3,22 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import ListView
 
 from administration.models import *
-from employees.forms import (
-    ContactInformationForm,
-    EducationForm,
-    EmergencyContactForm,
-    EmployeeForm,
-    EmploymentDetailsForm,
-    PersonalInformationForm,
-    TerminationDetailsForm,
-)
+from employees.forms import (ContactInformationForm, EducationForm,
+                             EmergencyContactForm, EmployeeForm,
+                             EmploymentDetailsForm, PersonalInformationForm,
+                             TerminationDetailsForm)
 
-from .models import (
-    ContactInformation,
-    Education,
-    EmergencyContact,
-    Employee,
-    EmploymentDetails,
-    PersonalInformation,
-    TerminationDetails,
-)
+from .models import (ContactInformation, Education, EmergencyContact, Employee,
+                     EmploymentDetails, PersonalInformation,
+                     TerminationDetails)
 
 
 def parse_date(date_str):
@@ -187,13 +177,14 @@ def get_employees_from_db(request):
         photo_exists = os.path.exists(
             settings.BASE_DIR
             / "media"
-            / f"employees/profile_pictures/{employee_data['cedula']}.webp"
+            / f"employees/photos/{employee_data['cedula']}.webp"
         )
 
         # Personal Information
+        print(employee_data["cedula"])
         personal_info = PersonalInformation(
             photo=(
-                f"employees/profile_pictures/{employee_data['cedula']}.webp"
+                f"employees/photos/{employee_data['cedula']}.webp"
                 if photo_exists
                 else None
             ),
@@ -376,12 +367,20 @@ class EmployeeListView(ListView):
         ).order_by("personal_info__first_name", "personal_info__last_name")
         query = self.request.GET.get("q")
         if query:
+            # queryset = queryset.annotate(
+            #     full_name=Concat(
+            #         "personal_info__first_name",
+            #         Value(" "),
+            #         "personal_info__last_name",
+            #     )
+            # )
             # Filter the queryset based on the search query
             queryset = queryset.filter(
-                Q(personal_info__first_name__icontains=query)
-                | Q(personal_info__last_name__icontains=query)
-                | Q(personal_info__identification__icontains=query)
-                | Q(employment_details__job_title__name__icontains=query)
+                # Q(full_name__icontains=query) |
+                Q(personal_info__first_name__icontains=query) |
+                Q(personal_info__last_name__icontains=query) | 
+                Q(personal_info__identification__icontains=query) | 
+                Q(employment_details__job_title__name__icontains=query)
             )
         return queryset
 

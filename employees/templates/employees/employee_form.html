@@ -6,8 +6,8 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/employee_form.css' %}" />
-  <script src="{% static 'js/employee_form.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'employees/css/employee_form.css' %}" />
+  <script src="{% static 'employees/js/employee_form.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
           <!-- Image Block -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-1 items-center">
             <div class="p-6 w-full flex justify-center items-center">
-              <img id="profile-picture-preview" src="{% static 'images/default-avatar.webp' %}" alt="Profile Picture" class="rounded-full shadow-md w-32 h-32 border border-gray-300 object-cover" />
+              <img id="profile-picture-preview" src="{% static 'employees/images/default-avatar.webp' %}" alt="Profile Picture" class="rounded-full shadow-md w-32 h-32 border border-gray-300 object-cover" />
             </div>
             <div>
               <label class="block text-gray-700 text-base font-bold mb-2" for="id_personal_info-photo">Foto de perfil</label>
@@ -190,7 +190,7 @@
           {% endif %}
         </div>
 
-        {% if view_type == 'Crear' %}
+        {% comment %} {% if view_type = 'Crear' %}
           <div class="bg-white shadow-md rounded-lg p-6 transition-shadow hover:shadow-lg">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Terminación de contrato</h2>
             <div class="space-y-4">
@@ -223,7 +223,7 @@
               </div>
             {% endif %}
           </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
       </div>
 
       <div class="mt-8 flex justify-end gap-4">

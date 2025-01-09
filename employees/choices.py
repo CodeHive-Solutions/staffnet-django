@@ -1,7 +1,5 @@
 # Reduce the size of model.py by moving the choices to a separate file
 
-import enum
-
 from django.db.models import TextChoices
 
 
