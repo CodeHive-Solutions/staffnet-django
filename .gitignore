@@ -6,3 +6,5 @@ venv/
 *.log
 # ignore the backup folder
 backup/
+tailwind_files
+tailwind_base.css

@@ -19,12 +19,12 @@
       <div class="flex items-center space-x-4">
         <div>
           {% if employee.personal_info.photo %}
-            <img src="{{ employee.personal_info.photo.url }}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" data-modal-target="default-modal" data-modal-toggle="default-modal" />
-            <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-              <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">HOLAAAAAAAAAA</div>
+            <img src="{{ employee.personal_info.photo.url }}" alt="Profile Picture" class="h-40 cursor-pointer rounded-full" data-modal-target="default-modal" data-modal-toggle="default-modal" />
+            <div id="default-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center">
+              <img src="{{ employee.personal_info.photo.url }}" alt="Big Profile Picture" class="max-h-screen" />
             </div>
           {% else %}
-            <img src="{% static 'employees/images/default-avatar.webp' %}" width="180px" alt="Profile Picture" class="w-24 h-24 rounded-full" />
+            <img src="{% static 'employees/images/default-avatar.webp' %}" alt="Profile Picture" class="h-32 rounded-full" />
           {% endif %}
         </div>
         <div>
@@ -53,9 +53,11 @@
         <li>
           <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#employment-details">Detalles</button>
         </li>
-        <li>
-          <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#termination-details">Terminación de contrato</button>
-        </li>
+        {% if not employee.status %}
+          <li>
+            <button class="tab-link inline-block p-4 border-b-2 border-transparent hover:border-blue-600 focus:outline-none focus:border-blue-600" data-target="#termination-details">Terminación de contrato</button>
+          </li>
+        {% endif %}
       </ul>
     </div>
 
@@ -129,6 +131,7 @@
       </div>
 
       <!-- Termination Details -->
+
       <div id="termination-details" class="tab-content hidden">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Termination Details</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
