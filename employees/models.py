@@ -27,24 +27,6 @@ from .choices import (
 from .utilities import user_photo_path
 
 
-class UpperCharField(models.CharField):
-    def pre_save(self, model_instance, add):
-        value = getattr(model_instance, self.attname)
-        if value:
-            value = value.upper()
-            setattr(model_instance, self.attname, value)
-        return value
-
-
-class UpperEmailField(models.EmailField):
-    def pre_save(self, model_instance, add):
-        value = getattr(model_instance, self.attname)
-        if value:
-            value = value.upper()
-            setattr(model_instance, self.attname, value)
-        return value
-
-
 # Personal Information Model
 class PersonalInformation(models.Model):
     photo = models.ImageField(
@@ -56,18 +38,18 @@ class PersonalInformation(models.Model):
         validators=[MinValueValidator(10000)],
         db_index=True,
     )
-    last_name = UpperCharField(
+    last_name = models.CharField(
         max_length=100, verbose_name="Apellidos", null=True, blank=True
     )
-    first_name = UpperCharField(max_length=100, verbose_name="Nombres")
-    document_type = UpperCharField(
+    first_name = models.CharField(max_length=100, verbose_name="Nombres")
+    document_type = models.CharField(
         max_length=2,
         choices=DocumentType.choices,
         verbose_name="Tipo de Documento",
         default=DocumentType.CC,
     )
     birth_date = models.DateField(verbose_name="Fecha de Nacimiento")
-    expedition_place = UpperCharField(
+    expedition_place = models.CharField(
         max_length=100, verbose_name="Lugar de Expedición"
     )
     expedition_date = models.DateField(verbose_name="Fecha de Expedición")
@@ -79,7 +61,7 @@ class PersonalInformation(models.Model):
     rh = models.CharField(
         max_length=3, choices=Rh.choices, verbose_name="RH", default=Rh.O_POSITIVE
     )
-    civil_status = UpperCharField(
+    civil_status = models.CharField(
         max_length=25,
         choices=CivilStatus.choices,
         verbose_name="Estado Civil",
@@ -96,7 +78,7 @@ class PersonalInformation(models.Model):
     stratum = models.PositiveSmallIntegerField(
         verbose_name="Estrato", validators=[MinValueValidator(0), MaxValueValidator(6)]
     )
-    shirt_size = UpperCharField(
+    shirt_size = models.CharField(
         max_length=4, choices=ShirtSize.choices, verbose_name="Talla de Camisa"
     )
     pant_size = models.PositiveSmallIntegerField(
@@ -143,8 +125,8 @@ class PersonalInformation(models.Model):
 
 # Contact Information Model
 class ContactInformation(models.Model):
-    address = UpperCharField(max_length=255, verbose_name="Dirección")
-    neighborhood = UpperCharField(max_length=100, verbose_name="Barrio")
+    address = models.CharField(max_length=255, verbose_name="Dirección")
+    neighborhood = models.CharField(max_length=100, verbose_name="Barrio")
     locality = models.ForeignKey(
         "administration.Locality",
         on_delete=models.PROTECT,
@@ -167,14 +149,14 @@ class ContactInformation(models.Model):
             RegexValidator(r"^\+(\d{11,14})$|^3\d{9}$", "Número celular inválido."),
         ],
     )
-    email = UpperEmailField(
+    email = models.EmailField(
         unique=True,
         verbose_name="Correo Electrónico",
         null=True,
         blank=True,
         db_index=True,
     )
-    corporate_email = UpperEmailField(
+    corporate_email = models.EmailField(
         unique=True,
         verbose_name="Correo Electrónico Corporativo",
         null=True,
@@ -188,11 +170,13 @@ class ContactInformation(models.Model):
 
 # Emergency Contact Model
 class EmergencyContact(models.Model):
-    name = UpperCharField(max_length=100, verbose_name="Nombre Contacto de Emergencia")
-    relationship = UpperCharField(
+    name = models.CharField(
+        max_length=100, verbose_name="Nombre Contacto de Emergencia"
+    )
+    relationship = models.CharField(
         max_length=100, choices=Relationship.choices, verbose_name="Parentesco"
     )
-    phone = UpperCharField(max_length=15, verbose_name="Teléfono de Emergencia")
+    phone = models.CharField(max_length=15, verbose_name="Teléfono de Emergencia")
 
     class Meta:
         verbose_name = "Contacto de Emergencia"
@@ -201,12 +185,14 @@ class EmergencyContact(models.Model):
 
 # Education Model
 class Education(models.Model):
-    education_level = UpperCharField(
+    education_level = models.CharField(
         max_length=100,
         choices=EducationLevel.choices,
         verbose_name="Nivel de Educación",
     )
-    title = UpperCharField(max_length=150, verbose_name="Título", null=True, blank=True)
+    title = models.CharField(
+        max_length=150, verbose_name="Título", null=True, blank=True
+    )
     ongoing_studies = models.BooleanField(
         default=False, verbose_name="Estudios en Curso"
     )
@@ -226,7 +212,7 @@ class EmploymentDetails(models.Model):
     transportation_allowance = models.DecimalField(
         max_digits=12, decimal_places=2, verbose_name="Auxilio de Transporte"
     )
-    payroll_account = UpperCharField(max_length=50, verbose_name="Cuenta de Nómina")
+    payroll_account = models.CharField(max_length=50, verbose_name="Cuenta de Nómina")
     bank = models.ForeignKey(
         "administration.Bank",
         on_delete=models.PROTECT,
@@ -293,13 +279,13 @@ class EmploymentDetails(models.Model):
         related_name="employees",
         verbose_name="Campaña",
     )
-    business_area = UpperCharField(
+    business_area = models.CharField(
         max_length=100, choices=BusinessArea.choices, verbose_name="Área de Negocio"
     )
-    contract_type = UpperCharField(
+    contract_type = models.CharField(
         max_length=100, choices=ContractType.choices, verbose_name="Tipo de Contrato"
     )
-    windows_user = UpperCharField(
+    windows_user = models.CharField(
         max_length=50, verbose_name="Usuario de Windows", null=True, blank=True
     )
     remote_work_application_date = models.DateField(
@@ -329,14 +315,14 @@ class TerminationDetails(models.Model):
     termination_date = models.DateField(
         verbose_name="Fecha de Terminación", null=True, blank=True
     )
-    termination_type = UpperCharField(
+    termination_type = models.CharField(
         max_length=100,
         choices=TerminationType.choices,
         verbose_name="Tipo de Terminación",
         null=True,
         blank=True,
     )
-    termination_reason = UpperCharField(
+    termination_reason = models.CharField(
         max_length=100,
         choices=TerminationReason.choices,
         verbose_name="Motivo de Terminación",
@@ -418,10 +404,8 @@ class Employee(models.Model):
         """Access the 'job_title' field from 'EmploymentDetails'."""
         return self.employment_details.job_title
 
-    
     def get_full_name(self) -> str:
         """Return the full name of the employee."""
         if self.personal_last_name:
             return f"{self.personal_first_name} {self.personal_last_name}".title()
         return self.personal_first_name.title()
-

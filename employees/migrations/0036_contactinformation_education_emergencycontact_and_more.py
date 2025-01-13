@@ -30,13 +30,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "address",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=255, verbose_name="Dirección"
                     ),
                 ),
                 (
                     "neighborhood",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=100, verbose_name="Barrio"
                     ),
                 ),
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "cell_phone",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=15,
                         validators=[django.core.validators.MinLengthValidator(10)],
                         verbose_name="Celular",
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "email",
-                    employees.models.UpperEmailField(
+                    models.EmailField(
                         max_length=254,
                         null=True,
                         unique=True,
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "corporate_email",
-                    employees.models.UpperEmailField(
+                    models.EmailField(
                         blank=True,
                         max_length=254,
                         null=True,
@@ -97,7 +97,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "education_level",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("PRIMARIA", "Primaria"),
                             ("BACHILLER", "Bachiller"),
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "title",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         blank=True, max_length=150, null=True, verbose_name="Título"
                     ),
                 ),
@@ -144,13 +144,13 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=100, verbose_name="Nombre Contacto de Emergencia"
                     ),
                 ),
                 (
                     "relationship",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("PADRE", "Padre"),
                             ("MADRE", "Madre"),
@@ -170,7 +170,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "phone",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=15, verbose_name="Teléfono de Emergencia"
                     ),
                 ),
@@ -225,7 +225,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "payroll_account",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=50, verbose_name="Cuenta de Nómina"
                     ),
                 ),
@@ -255,7 +255,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "business_area",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("OPERATIVOS", "Operativos"),
                             ("ADMINISTRATIVOS", "Administrativos"),
@@ -266,7 +266,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "contract_type",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("TERMINO INDEFINIDO", "Termino Indefinido"),
                             ("OBRA O LABOR", "Obra o Labor"),
@@ -279,7 +279,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "windows_user",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         blank=True,
                         max_length=50,
                         null=True,
@@ -322,19 +322,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "last_name",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         blank=True, max_length=100, null=True, verbose_name="Apellidos"
                     ),
                 ),
                 (
                     "first_name",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=100, verbose_name="Nombres"
                     ),
                 ),
                 (
                     "document_type",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("CC", "Cédula de Ciudadanía"),
                             ("CE", "Cédula de Extranjería"),
@@ -350,7 +350,7 @@ class Migration(migrations.Migration):
                 ("birth_date", models.DateField(verbose_name="Fecha de Nacimiento")),
                 (
                     "expedition_place",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         max_length=100, verbose_name="Lugar de Expedición"
                     ),
                 ),
@@ -360,7 +360,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "gender",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[("M", "Masculino"), ("F", "Femenino")],
                         max_length=1,
                         verbose_name="Género",
@@ -368,7 +368,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "rh",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("O+", "O+"),
                             ("O-", "O-"),
@@ -385,7 +385,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "civil_status",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("SOLTERO(A)", "Soltero(a)"),
                             ("UNION LIBRE", "Unión Libre"),
@@ -424,7 +424,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "shirt_size",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         choices=[
                             ("XS", "XS"),
                             ("S", "S"),
@@ -483,7 +483,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "termination_type",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         blank=True,
                         choices=[
                             ("VOLUNTARIA", "Voluntaria"),
@@ -496,7 +496,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "termination_reason",
-                    employees.models.UpperCharField(
+                    employees.models.models.CharField(
                         blank=True,
                         choices=[
                             ("BAJA REMUNERACION", "Baja remuneración"),

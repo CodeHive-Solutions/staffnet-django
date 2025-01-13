@@ -11,14 +11,25 @@ from django.views import View
 from django.views.generic import ListView
 
 from administration.models import *
-from employees.forms import (ContactInformationForm, EducationForm,
-                             EmergencyContactForm, EmployeeForm,
-                             EmploymentDetailsForm, PersonalInformationForm,
-                             TerminationDetailsForm)
+from employees.forms import (
+    ContactInformationForm,
+    EducationForm,
+    EmergencyContactForm,
+    EmployeeForm,
+    EmploymentDetailsForm,
+    PersonalInformationForm,
+    TerminationDetailsForm,
+)
 
-from .models import (ContactInformation, Education, EmergencyContact, Employee,
-                     EmploymentDetails, PersonalInformation,
-                     TerminationDetails)
+from .models import (
+    ContactInformation,
+    Education,
+    EmergencyContact,
+    Employee,
+    EmploymentDetails,
+    PersonalInformation,
+    TerminationDetails,
+)
 
 
 def parse_date(date_str):
@@ -365,7 +376,7 @@ class EmployeeListView(ListView):
             "employment_details__job_title",
             "status",
         ).order_by("personal_info__first_name", "personal_info__last_name")
-        query = self.request.GET.get("q")
+        query = self.request.GET.get("query")
         if query:
             # queryset = queryset.annotate(
             #     full_name=Concat(
@@ -377,12 +388,20 @@ class EmployeeListView(ListView):
             # Filter the queryset based on the search query
             queryset = queryset.filter(
                 # Q(full_name__icontains=query) |
-                Q(personal_info__first_name__icontains=query) |
-                Q(personal_info__last_name__icontains=query) | 
-                Q(personal_info__identification__icontains=query) | 
-                Q(employment_details__job_title__name__icontains=query)
+                Q(personal_info__first_name__icontains=query)
+                | Q(personal_info__last_name__icontains=query)
+                | Q(personal_info__identification__icontains=query)
+                | Q(employment_details__job_title__name__icontains=query)
             )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        """Get the context data."""
+        context = super().get_context_data(**kwargs)
+        context["query"] = (
+            self.request.GET.get("query") if self.request.GET.get("query") else ""
+        )
+        return context
 
 
 class EmployeeDetailView(View):
@@ -466,10 +485,6 @@ class CreateEmployeeView(View):
             employee.status = True  # Active by default
             employee.save()
             return redirect("employees-list")
-        else:
-            for name, form in forms.items():
-                if not form.is_valid():
-                    print(f"Errors in {name}: {form.errors}")
 
         return render(request, self.template_name, {**forms, "view_type": "Crear"})
 

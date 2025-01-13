@@ -78,7 +78,7 @@ class PersonalInformationForm(forms.ModelForm):
                 field.widget.attrs["autocomplete"] = "off"
                 field.widget.attrs["autofill"] = "off"
             field.widget.attrs["placeholder"] = placeholder
-            if DEBUG:
+            if DEBUG and name != "photo":
                 self.fields[name].initial = getattr(personal_information, name)
 
 

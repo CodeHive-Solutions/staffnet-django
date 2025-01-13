@@ -82,7 +82,12 @@ class EmployeeModelTest(TestCase):
         response = self.client.post(reverse("employee-create"), self.employee)
         self.assertEqual(response.status_code, 302, response.status_code)
         self.assertTrue(Employee.objects.exists())
-        self.assertTrue(Employee.objects.first().status)  # type: ignore
+        employee = Employee.objects.first()
+        assert employee
+        self.assertTrue(employee.status)
+        self.assertEqual(
+            employee.personal_first_name, str(self.personal_info["first_name"]).upper()
+        )
         self.assertTrue(PersonalInformation.objects.exists())
         self.assertTrue(ContactInformation.objects.exists())
         self.assertTrue(EmergencyContact.objects.exists())
